@@ -1,0 +1,67 @@
+package pl.powiescdosukcesu.repositories;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import pl.powiescdosukcesu.entities.PowiesciUser;
+
+@RunWith(SpringRunner.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@DataJpaTest
+public class UserRepositoryTest {
+
+	@Autowired
+	private UserRepository userRep;
+
+	@Autowired
+	private RoleRepository roleRep;
+
+	
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@Rule
+	public final ExpectedException exception = ExpectedException.none();
+
+	@Test
+	public void idOfUserWithUsernametestShouldEqual1() {
+
+		PowiesciUser user = userRep.findByUsername("test");
+
+		assertEquals("test", user.getUserName());
+	}
+
+	@Test
+	public void shouldSaveUserWithoutExceptions() {
+
+		long currentNumberOfUsers=userRep.count();
+		PowiesciUser user = new PowiesciUser();
+		user.setUserName("newUser");
+		user.setPassword(passwordEncoder().encode("pass"));
+		user.setFirstName("janek2");
+		user.setLastName("kowalski");
+		user.setEmail("cos@s.pl");
+
+		user.setGender("M");
+		user.setRoles(Arrays.asList(roleRep.findRoleByName("ROLE_EMPLOYEE")));
+
+		ExpectedException.none();
+		userRep.save(user);
+
+		assertEquals(currentNumberOfUsers+1, userRep.count());
+	}
+	
+
+}
