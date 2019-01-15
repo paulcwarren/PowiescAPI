@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.entities;
+package pl.powiescdosukcesu.book;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -30,12 +30,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Data;
+import pl.powiescdosukcesu.appuser.AppUser;
 
 @Entity
 @Table(name = "files")
 @EntityListeners(AuditingEntityListener.class)
 @Data
-public class FileEnt implements Serializable {
+public class Book implements Serializable {
 
 	/**
 	 * 
@@ -81,12 +82,12 @@ public class FileEnt implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST,
 			CascadeType.REFRESH })
 	@JoinColumn(name = "user_id")
-	private PowiesciUser user;
+	private AppUser user;
 
-	public FileEnt() {
+	public Book() {
 		
 	}
-	public FileEnt(String title, byte[] image, Set<Genre> genres, byte[] file) {
+	public Book(String title, byte[] image, Set<Genre> genres, byte[] file) {
 
 		this.title = title;
 		this.backgroundImage = image;

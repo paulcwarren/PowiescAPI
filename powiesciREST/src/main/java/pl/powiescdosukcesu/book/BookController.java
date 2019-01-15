@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.controllers;
+package pl.powiescdosukcesu.book;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -33,24 +33,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import pl.powiescdosukcesu.dtos.FileEntShortInfoDTO;
-import pl.powiescdosukcesu.entities.FileEnt;
-import pl.powiescdosukcesu.entities.Genre;
-import pl.powiescdosukcesu.entities.PowiesciUser;
+import pl.powiescdosukcesu.appuser.AppUser;
+import pl.powiescdosukcesu.appuser.UserService;
 import pl.powiescdosukcesu.exceptionhandling.FileEntNotFoundException;
-import pl.powiescdosukcesu.repositories.GenreRepository;
-import pl.powiescdosukcesu.services.FileService;
-import pl.powiescdosukcesu.services.UserService;
 
 @RestController
 @RequestMapping("/books")
 @CrossOrigin
-public class FileRestController {
+public class BookController {
 
 	private Logger LOGGER = Logger.getLogger(getClass().getName());
 
 	@Autowired
-	private FileService fileService;
+	private BookService bookService;
 
 	@Autowired
 	private UserService userService;
@@ -62,15 +57,15 @@ public class FileRestController {
 	private ModelMapper modelMapper;
 	
 	@GetMapping
-	public List<FileEntShortInfoDTO> getFiles() {
+	public List<BookShortInfoDTO> getFiles() {
 
-		List<FileEnt> files = fileService.getFiles();
-		return files.stream().map(file->modelMapper.map(file, FileEntShortInfoDTO.class)).collect(Collectors.toList());
+		List<Book> files = bookService.getFiles();
+		return files.stream().map(file->modelMapper.map(file, BookShortInfoDTO.class)).collect(Collectors.toList());
 	}
 
 	@GetMapping("/id/{fileId}")
-	public ResponseEntity<FileEnt> showContent(@PathVariable long fileId) {
-		FileEnt file = fileService.getFileById(fileId);
+	public ResponseEntity<Book> showContent(@PathVariable long fileId) {
+		Book file = bookService.getFileById(fileId);
 		
 		if(file==null)
 			throw new FileEntNotFoundException("Dana powieść nie istnieje");
@@ -79,8 +74,8 @@ public class FileRestController {
 	}
 
 	@GetMapping("/{keyword}")
-	public ResponseEntity<List<FileEnt>> filterByKeyword(@PathVariable String keyword) {
-		List<FileEnt> files = fileService.getFilesByKeyword(keyword);
+	public ResponseEntity<List<Book>> filterByKeyword(@PathVariable String keyword) {
+		List<Book> files = bookService.getFilesByKeyword(keyword);
 		if(files==null)
 			throw new FileEntNotFoundException("Dana powieść nie istnieje");
 		
@@ -88,32 +83,32 @@ public class FileRestController {
 	}
 	
 	@GetMapping("/byGenre")
-	public List<FileEnt> filterByGenres(@RequestParam("genres") String[] genres){
+	public List<Book> filterByGenres(@RequestParam("genres") String[] genres){
 		
-		return fileService.getFilesByGenres(genres);
+		return bookService.getFilesByGenres(genres);
 	}
 	
 	@GetMapping("/byDate")
-	public List<FileEnt> filterByGenre(@RequestParam("creationDate") LocalDate creationDate){
+	public List<Book> filterByGenre(@RequestParam("creationDate") LocalDate creationDate){
 		
-		return fileService.getFilesByDate(creationDate);
+		return bookService.getFilesByDate(creationDate);
 	}
 
 	@DeleteMapping
 	@PreAuthorize("#file.user.userName == #principal.getName()")
-	public ResponseEntity<String> deleteBook(@RequestBody FileEnt file,Principal principal) {
+	public ResponseEntity<String> deleteBook(@RequestBody Book file,Principal principal) {
 
-		if(fileService.getFileById(file.getId())==null)
+		if(bookService.getFileById(file.getId())==null)
 			throw new FileEntNotFoundException("Dana powieść nie istnieje");
 		
-		fileService.deleteBook(file);
+		bookService.deleteBook(file);
 		
 		return new ResponseEntity<String>("Udało się usunąć plik",HttpStatus.OK);
 	}
 
 	@PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("#file.user.userName == #principal.getName()")
-	public ResponseEntity<List<String>>updateBook(@Valid@RequestBody FileEnt file,Principal principal,Errors errors) {
+	public ResponseEntity<List<String>>updateBook(@Valid@RequestBody Book file,Principal principal,Errors errors) {
 
 		List<String> errorMessages = new ArrayList<>();
 		errors.getAllErrors().forEach(e->errorMessages.add(e.getDefaultMessage()));;
@@ -122,7 +117,7 @@ public class FileRestController {
 			return new ResponseEntity<List<String>>(errorMessages,HttpStatus.BAD_REQUEST);
 		}
 		
-		fileService.updateFile(file);
+		bookService.updateFile(file);
 
 		return new ResponseEntity<>(Arrays.asList("Plik został zaktualniony"),HttpStatus.OK);
 
@@ -136,8 +131,8 @@ public class FileRestController {
 							@RequestParam("backGroundImage") byte[] image,
 							Principal principal) {
 
-		PowiesciUser user = userService.getUser(principal.getName());
-		FileEnt fileEnt = null;
+		AppUser user = userService.getUser(principal.getName());
+		Book book = null;
 		Set<Genre> genresList = new TreeSet<>();
 
 		Base64 base = new Base64();
@@ -148,13 +143,13 @@ public class FileRestController {
 			genresList.add(genreRep.findGenreByName(name));
 
 		try {
-			fileEnt = new FileEnt(title, image, genresList, file.getBytes());
+			book = new Book(title, image, genresList, file.getBytes());
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		fileService.saveFile(fileEnt, user);
+		bookService.saveFile(book, user);
 
 	}
 

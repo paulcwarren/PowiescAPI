@@ -17,9 +17,11 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import pl.powiescdosukcesu.entities.Comment;
-import pl.powiescdosukcesu.entities.FileEnt;
-import pl.powiescdosukcesu.repositories.FileRepository;
+import pl.powiescdosukcesu.book.Comment;
+import pl.powiescdosukcesu.book.Book;
+import pl.powiescdosukcesu.book.BookRepository;
+import pl.powiescdosukcesu.book.BookService;
+import pl.powiescdosukcesu.book.BookServiceImpl;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -33,23 +35,23 @@ public class FileServiceTest {
 	static class EmployeeServiceImplTestContextConfiguration {
 
 		@Bean
-		public FileService fileService() {
-			return new FileServiceImpl();
+		public BookService bookService() {
+			return new BookServiceImpl();
 		}
 	}
 
 	@Autowired
-	private FileService fileService;
+	private BookService bookService;
 
 	
 	@Autowired
-	private FileRepository fileRepository;
+	private BookRepository bookRepository;
 
 	
 	@Test
 	public void shouldBase64EncodeByteImages() {
 		
-		List<String> images=fileService.loadImages();
+		List<String> images=bookService.loadImages();
 		ExpectedException.none();
 		assertFalse(images.isEmpty());
 	}
@@ -57,24 +59,24 @@ public class FileServiceTest {
 	@Test
 	public void shouldDeleteFile() {
 		
-		long currentNumberOfFIles=fileRepository.count();
-		FileEnt fileToGetDeleted=fileService.getFileById(528l);
+		long currentNumberOfFIles=bookRepository.count();
+		Book fileToGetDeleted=bookService.getFileById(528l);
 		fileToGetDeleted.setUser(null);
-		fileService.deleteBook(fileToGetDeleted);
-		assertEquals(currentNumberOfFIles-1, fileRepository.count());
+		bookService.deleteBook(fileToGetDeleted);
+		assertEquals(currentNumberOfFIles-1, bookRepository.count());
 	}
 	
 	@Test
 	public void shouldLoadFileWithComments(){
 		
-		FileEnt file = fileService.getFileById(1);
+		Book file = bookService.getFileById(1);
 		Comment comment = new Comment("Wow thats a great story", file.getUser());
 		
 		file.addComment(comment);
 		
-		fileService.updateFile(file);
+		bookService.updateFile(file);
 		
-		assertNotNull(fileService.getFileById(1).getComments());
+		assertNotNull(bookService.getFileById(1).getComments());
 		
 	}
 	

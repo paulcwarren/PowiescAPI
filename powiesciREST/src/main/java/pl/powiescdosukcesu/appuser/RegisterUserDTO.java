@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.dtos;
+package pl.powiescdosukcesu.appuser;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;

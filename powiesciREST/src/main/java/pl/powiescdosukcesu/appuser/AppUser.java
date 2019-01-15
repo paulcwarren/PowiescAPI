@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.entities;
+package pl.powiescdosukcesu.appuser;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -24,11 +24,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import lombok.Data;
+import pl.powiescdosukcesu.book.Book;
 
 @Entity
 @Table(name = "user")
 @Data
-public class PowiesciUser implements Serializable {
+public class AppUser implements Serializable {
 
 	/**
 	 * 
@@ -70,12 +71,12 @@ public class PowiesciUser implements Serializable {
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = { CascadeType.DETACH, CascadeType.MERGE,
 			CascadeType.PERSIST, CascadeType.REFRESH })
 	@JsonIgnoreProperties(value = { "user", "comments" })
-	private List<FileEnt> files;
+	private List<Book> files;
 
-	public PowiesciUser() {
+	public AppUser() {
 	}
 
-	public PowiesciUser(String userName, String password, String firstName, String lastName, String email) {
+	public AppUser(String userName, String password, String firstName, String lastName, String email) {
 		this.userName = userName;
 		this.password = password;
 		this.firstName = firstName;
@@ -83,7 +84,7 @@ public class PowiesciUser implements Serializable {
 		this.email = email;
 	}
 
-	public PowiesciUser(String userName, String password, String firstName, String lastName, String email,
+	public AppUser(String userName, String password, String firstName, String lastName, String email,
 			Collection<Role> roles) {
 		this.userName = userName;
 		this.password = password;
@@ -93,7 +94,7 @@ public class PowiesciUser implements Serializable {
 		this.roles = roles;
 	}
 
-	public void addFile(FileEnt file) {
+	public void addFile(Book file) {
 		if (files == null)
 			files = new LinkedList<>();
 		file.setUser(this);

@@ -14,7 +14,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import pl.powiescdosukcesu.entities.PowiesciUser;
+import pl.powiescdosukcesu.appuser.AppUser;
+import pl.powiescdosukcesu.appuser.RoleRepository;
+import pl.powiescdosukcesu.appuser.UserRepository;
 
 @RunWith(SpringRunner.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -38,7 +40,7 @@ public class UserRepositoryTest {
 	@Test
 	public void idOfUserWithUsernametestShouldEqual1() {
 
-		PowiesciUser user = userRep.findByUsername("test");
+		AppUser user = userRep.findByUsername("test");
 
 		assertEquals("test", user.getUserName());
 	}
@@ -47,7 +49,7 @@ public class UserRepositoryTest {
 	public void shouldSaveUserWithoutExceptions() {
 
 		long currentNumberOfUsers=userRep.count();
-		PowiesciUser user = new PowiesciUser();
+		AppUser user = new AppUser();
 		user.setUserName("newUser");
 		user.setPassword(passwordEncoder().encode("pass"));
 		user.setFirstName("janek2");

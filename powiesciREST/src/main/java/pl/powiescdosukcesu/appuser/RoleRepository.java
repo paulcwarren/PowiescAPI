@@ -1,9 +1,7 @@
-package pl.powiescdosukcesu.repositories;
+package pl.powiescdosukcesu.appuser;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-
-import pl.powiescdosukcesu.entities.Role;
 
 public interface RoleRepository extends CrudRepository<Role, Long> {
 	

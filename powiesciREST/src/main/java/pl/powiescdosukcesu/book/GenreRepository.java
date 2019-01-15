@@ -1,10 +1,8 @@
-package pl.powiescdosukcesu.repositories;
+package pl.powiescdosukcesu.book;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-
-import pl.powiescdosukcesu.entities.Genre;
 
 @Repository
 public interface GenreRepository extends CrudRepository<Genre,Long> {

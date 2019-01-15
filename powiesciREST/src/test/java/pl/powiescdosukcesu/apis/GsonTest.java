@@ -4,14 +4,14 @@ import org.junit.Test;
 
 import com.google.gson.Gson;
 
-import pl.powiescdosukcesu.entities.PowiesciUser;
+import pl.powiescdosukcesu.appuser.AppUser;
 
 public class GsonTest {
 
 	@Test
 	public void whatGsonBehavesLike() {
 		Gson gson=new Gson();
-		PowiesciUser user=new PowiesciUser();
+		AppUser user=new AppUser();
 		
 		user.setUserName("test");
 		System.out.println(gson.toJson(user));

@@ -7,8 +7,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,15 +29,16 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.powiescdosukcesu.entities.FileEnt;
-import pl.powiescdosukcesu.entities.Genre;
-import pl.powiescdosukcesu.repositories.FileRepository;
-import pl.powiescdosukcesu.repositories.GenreRepository;
-import pl.powiescdosukcesu.services.FileService;
-import pl.powiescdosukcesu.services.UserService;
+import pl.powiescdosukcesu.appuser.UserService;
+import pl.powiescdosukcesu.book.Book;
+import pl.powiescdosukcesu.book.BookController;
+import pl.powiescdosukcesu.book.BookRepository;
+import pl.powiescdosukcesu.book.BookService;
+import pl.powiescdosukcesu.book.Genre;
+import pl.powiescdosukcesu.book.GenreRepository;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = FileRestController.class)
+@WebMvcTest(controllers = BookController.class)
 @ContextConfiguration
 @WebAppConfiguration
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -46,10 +47,10 @@ public class FileRestControllerTest {
 	@Autowired
 	private WebApplicationContext context;
 	@MockBean
-	private FileRepository fileRepository;
+	private BookRepository bookRepository;
 	
 	@MockBean
-	private FileService fileService;
+	private BookService bookService;
 	@MockBean
 	private UserService userService;
 	@MockBean
@@ -85,9 +86,9 @@ public class FileRestControllerTest {
 
 		String temp = "image";
 		ObjectMapper objectMapper = new ObjectMapper();
-		Set<Genre> tempset = new TreeSet<>();
-		tempset.add(new Genre(1, "hi"));
-		FileEnt file = new FileEnt("hi",temp.getBytes(),tempset, temp.getBytes());
+		Set<Genre> tempset = new HashSet<>();
+		tempset.add(new Genre("hi"));
+		Book file = new Book("hi",temp.getBytes(),tempset, temp.getBytes());
 		
 		String json = null;
 		json=objectMapper.writeValueAsString(file);

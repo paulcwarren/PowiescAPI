@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.controlleradvices;
+package pl.powiescdosukcesu.book;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +9,7 @@ import pl.powiescdosukcesu.errorresponses.FileEntErrorResponse;
 import pl.powiescdosukcesu.exceptionhandling.FileEntNotFoundException;
 
 @ControllerAdvice
-public class FileRestControllerAdvice {
+public class BookRestControllerAdvice {
 
 	@ExceptionHandler
 	public ResponseEntity<FileEntErrorResponse> handleException(FileEntNotFoundException exc){

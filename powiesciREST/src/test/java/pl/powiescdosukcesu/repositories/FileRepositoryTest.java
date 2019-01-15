@@ -6,10 +6,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,9 +21,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import pl.powiescdosukcesu.entities.FileEnt;
-import pl.powiescdosukcesu.entities.Genre;
-import pl.powiescdosukcesu.entities.PowiesciUser;
+import pl.powiescdosukcesu.appuser.AppUser;
+import pl.powiescdosukcesu.appuser.UserRepository;
+import pl.powiescdosukcesu.book.Book;
+import pl.powiescdosukcesu.book.BookRepository;
+import pl.powiescdosukcesu.book.Genre;
+import pl.powiescdosukcesu.book.GenreRepository;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -32,8 +35,9 @@ public class FileRepositoryTest {
 
 	
 	@Autowired
-	private FileRepository fileRep;
+	private BookRepository fileRep;
 
+	@SuppressWarnings("unused")
 	@Autowired
 	private UserRepository userRep;
 
@@ -49,12 +53,12 @@ public class FileRepositoryTest {
 	public void prepeareSomedData() {
 
 		String byteSrc="espifwefgio";
-		Set<Genre> genres = new TreeSet<Genre>();
-		genres.add(new Genre(1,"Horror"));
-		FileEnt file = new FileEnt();
+		Set<Genre> genres = new HashSet<Genre>();
+		genres.add(new Genre("Horror"));
+		Book file = new Book();
 		
 
-		file.setUser(new PowiesciUser("test", "test", null, null, "test@as.pl"));
+		file.setUser(new AppUser("test", "test", null, null, "test@as.pl"));
 		file.setTitle("test");
 		file.setFile(byteSrc.getBytes());
 		file.setRating(2.0);
@@ -66,7 +70,7 @@ public class FileRepositoryTest {
 	
 	@Test
 	public void shouldReturnAllFiles() {
-		List<FileEnt> allFiles=new ArrayList<>();
+		List<Book> allFiles=new ArrayList<>();
 		fileRep.findAll().iterator().forEachRemaining(f->allFiles.add(f));
 		assertEquals(fileRep.count(), allFiles.size());
 	}
@@ -74,7 +78,7 @@ public class FileRepositoryTest {
 	@Test
 	public void findByKeywordShouldFilesShouldContainTheKeyword() {
 		
-		List<FileEnt> files=fileRep.findFilesByKeyword("test");
+		List<Book> files=fileRep.findFilesByKeyword("test");
 		files.forEach(f->assertTrue(f.getTitle().equals("test") || f.getUser().getUserName().equals("test")));
 	}
 	
@@ -83,7 +87,7 @@ public class FileRepositoryTest {
 		List<Genre> genres = new ArrayList<>();
 		genres.add(genreRep.findGenreByName("Horror"));
 		genres.add(genreRep.findGenreByName("Romans"));
-		List<FileEnt> files = fileRep.findByGenres(new String[] { "Horror", "Romans" });
+		List<Book> files = fileRep.findByGenres(new String[] { "Horror", "Romans" });
 
 		files.stream().map(f -> f.getGenres())
 				.forEach(gL -> assertTrue(gL.contains(genreRep.findGenreByName("Horror"))));
@@ -99,11 +103,11 @@ public class FileRepositoryTest {
 
 	
 
-		Optional<FileEnt> optFile = fileRep.findById(1l);
-		FileEnt getFile = optFile.get();
-		FileEnt file = new FileEnt();
+		Optional<Book> optFile = fileRep.findById(1l);
+		Book getFile = optFile.get();
+		Book file = new Book();
 
-		file.setUser(new PowiesciUser("test", "test", null, null, "test@as.pl"));
+		file.setUser(new AppUser("test", "test", null, null, "test@as.pl"));
 		file.setId(5);
 		file.setTitle(getFile.getTitle());
 		file.setFile(getFile.getFile());
@@ -121,11 +125,11 @@ public class FileRepositoryTest {
 	@Test
 	public void shouldChangeContentOfFileToTheDeclaredOne() {
 
-		Optional<FileEnt> optFile = fileRep.findById(1l);
-		FileEnt getFile = optFile.get();
+		Optional<Book> optFile = fileRep.findById(1l);
+		Book getFile = optFile.get();
 		String stringFile = "thats some really good code";
 		byte[] stringByte = stringFile.getBytes();
-		FileEnt file = new FileEnt();
+		Book file = new Book();
 
 		file.setId(getFile.getId());
 
@@ -136,7 +140,7 @@ public class FileRepositoryTest {
 		ExpectedException.none();
 		fileRep.updateFile(file);
 		
-		FileEnt doneFile = fileRep.findById(file.getId()).get();
+		Book doneFile = fileRep.findById(file.getId()).get();
 
 		assertEquals("thats some really good code", doneFile.getContent());
 	}

@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.dtos;
+package pl.powiescdosukcesu.book;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -6,13 +6,13 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class FileEntShortInfoDTO {
+public class BookShortInfoDTO {
 
 	private String title;
 	private byte[] file;
 	private byte[] backgroundImage;
 	private String user;
-	private String[] genres;
+	private List<Genre> genres;
 	private LocalDate createdDate;
 
 }

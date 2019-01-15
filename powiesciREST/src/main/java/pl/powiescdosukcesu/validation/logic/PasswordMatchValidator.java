@@ -3,7 +3,7 @@ package pl.powiescdosukcesu.validation.logic;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import pl.powiescdosukcesu.dtos.RegisterUserDTO;
+import pl.powiescdosukcesu.appuser.RegisterUserDTO;
 import pl.powiescdosukcesu.validation.annotations.PasswordMatch;
 
 public class PasswordMatchValidator implements ConstraintValidator<PasswordMatch,Object> {

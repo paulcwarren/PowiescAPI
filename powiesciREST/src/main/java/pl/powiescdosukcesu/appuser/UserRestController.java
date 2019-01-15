@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.controllers;
+package pl.powiescdosukcesu.appuser;
 
 import java.security.Principal;
 
@@ -15,10 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import pl.powiescdosukcesu.dtos.RegisterUserDTO;
-import pl.powiescdosukcesu.entities.PowiesciUser;
-import pl.powiescdosukcesu.services.UserService;
-
 @RestController
 @RequestMapping("/users")
 public class UserRestController {
@@ -27,7 +23,7 @@ public class UserRestController {
 	private UserService userService;
 
 	@GetMapping("{name}")
-	public PowiesciUser getUser(@PathVariable String name) {
+	public AppUser getUser(@PathVariable String name) {
 
 		return userService.getUser(name);
 	}
@@ -41,7 +37,7 @@ public class UserRestController {
 	@GetMapping("/login")
 	public ResponseEntity<String> isAuthenticated(Principal principal) {
 
-		PowiesciUser user = userService.getUser(principal.getName());
+		AppUser user = userService.getUser(principal.getName());
 		if (user != null)
 			return new ResponseEntity<String>(user.getUserName(), HttpStatus.OK);
 		else

@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.entities;
+package pl.powiescdosukcesu.appuser;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

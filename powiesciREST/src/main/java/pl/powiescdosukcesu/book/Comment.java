@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.entities;
+package pl.powiescdosukcesu.book;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +17,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import pl.powiescdosukcesu.appuser.AppUser;
 
 @Entity
 @Table(name = "comments")
@@ -38,18 +40,18 @@ public class Comment implements Comparable<Comment> {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	@JsonIgnoreProperties(value="comments")
-	private PowiesciUser user;
+	private AppUser user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "file_id")
 	@JsonIgnoreProperties(value="comments")
-	private FileEnt file;
+	private Book file;
 
 	public Comment() {
 
 	}
 
-	public Comment(String content,PowiesciUser user){
+	public Comment(String content,AppUser user){
 		
 		this.content=content;
 		this.user=user;
@@ -79,19 +81,19 @@ public class Comment implements Comparable<Comment> {
 		this.creationDate = creationDate;
 	}
 
-	public PowiesciUser getUser() {
+	public AppUser getUser() {
 		return user;
 	}
 
-	public void setUser(PowiesciUser user) {
+	public void setUser(AppUser user) {
 		this.user = user;
 	}
 
-	public FileEnt getFile() {
+	public Book getFile() {
 		return file;
 	}
 
-	public void setFile(FileEnt file) {
+	public void setFile(Book file) {
 		this.file = file;
 	}
 

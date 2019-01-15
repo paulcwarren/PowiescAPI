@@ -20,8 +20,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
-import pl.powiescdosukcesu.dtos.FileEntShortInfoDTO;
-import pl.powiescdosukcesu.entities.FileEnt;
+import pl.powiescdosukcesu.book.Book;
+import pl.powiescdosukcesu.book.BookShortInfoDTO;
 
 @Configuration
 @EntityScan("pl.powiescdosukcesu.entities")
@@ -73,26 +73,7 @@ public class AppConfig {
 	public ModelMapper modelMapper() {
 
 		ModelMapper modelMapper = new ModelMapper();
-		Converter<FileEnt, FileEntShortInfoDTO> toFileDTO = new Converter<FileEnt, FileEntShortInfoDTO>() {
 
-			@Override
-			public FileEntShortInfoDTO convert(MappingContext<FileEnt, FileEntShortInfoDTO> context) {
-
-				context.getDestination().setTitle(context.getSource().getTitle());
-				context.getDestination().setBackgroundImage(context.getSource().getBackgroundImage());
-
-				context.getDestination().setFile(context.getSource().getFile());
-				context.getDestination().setUser(context.getSource().getUser().getUserName());
-
-				context.getDestination().setGenres(
-						context.getSource().getGenres().stream().map(g -> g.getName()).toArray(String[]::new));
-
-				return context.getDestination();
-			}
-
-		};
-		
-		modelMapper.addConverter(toFileDTO);
 		return modelMapper;
 	}
 	/*

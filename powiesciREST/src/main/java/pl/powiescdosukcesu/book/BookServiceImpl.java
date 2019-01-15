@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.services;
+package pl.powiescdosukcesu.book;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
@@ -16,27 +16,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import pl.powiescdosukcesu.entities.FileEnt;
-import pl.powiescdosukcesu.entities.PowiesciUser;
-import pl.powiescdosukcesu.repositories.FileRepository;
+import pl.powiescdosukcesu.appuser.AppUser;
 
 @Service
 @Transactional
-public class FileServiceImpl implements FileService {
+public class BookServiceImpl implements BookService {
 
 	@Autowired
-	private FileRepository fileRep;
+	private BookRepository fileRep;
 
 	private Logger LOGGER = Logger.getLogger(getClass().getName());
 
 	@Override
-	public List<FileEnt> getFiles() {
+	public List<Book> getFiles() {
 
 		long start = System.currentTimeMillis();
-		Iterable<FileEnt> iterableFiles = fileRep.findAll();
+		Iterable<Book> iterableFiles = fileRep.findAll();
 
 		LOGGER.info("Fetching time----->" + (System.currentTimeMillis() - start));
-		List<FileEnt> files = new ArrayList<>();
+		List<Book> files = new ArrayList<>();
 
 		iterableFiles.forEach(f -> files.add(f));
 
@@ -45,23 +43,23 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
-	public FileEnt getFileById(long id) {
+	public Book getFileById(long id) {
 
-		Optional<FileEnt> optionalEntity = fileRep.findById(id);
+		Optional<Book> optionalEntity = fileRep.findById(id);
 		
-		FileEnt file = optionalEntity.get();
+		Book file = optionalEntity.get();
 		file.getComments();
 		return file;
 	}
 
 	@Override
-	public List<FileEnt> getFilesByKeyword(String keyword) {
+	public List<Book> getFilesByKeyword(String keyword) {
 
 		return fileRep.findFilesByKeyword(keyword);
 	}
 	
 	@Override
-	public List<FileEnt> getFilesByGenres(String[] genres) {
+	public List<Book> getFilesByGenres(String[] genres) {
 		
 		return fileRep.findByGenres(genres);
 	}
@@ -69,7 +67,7 @@ public class FileServiceImpl implements FileService {
 	
 
 	@Override
-	public void saveFile(FileEnt file, PowiesciUser user) {
+	public void saveFile(Book file, AppUser user) {
 
 		file.setUser(user);
 		user.addFile(file);
@@ -79,7 +77,7 @@ public class FileServiceImpl implements FileService {
 
 	@Override
 	@Async
-	public void deleteBook(FileEnt file) {
+	public void deleteBook(Book file) {
 
 		fileRep.delete(file);
 
@@ -93,7 +91,7 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
-	public void updateFile(FileEnt file) {
+	public void updateFile(Book file) {
 		
 		file.setUser(getFileById(file.getId()).getUser());
 		fileRep.updateFile(file);
@@ -123,7 +121,7 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
-	public List<FileEnt> getFilesByDate(LocalDate date) {
+	public List<Book> getFilesByDate(LocalDate date) {
 		
 		return fileRep.findByCreatedDate(date);
 	}

@@ -1,5 +1,5 @@
 
-package pl.powiescdosukcesu.services;
+package pl.powiescdosukcesu.appuser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,11 +23,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.log4j.Log4j2;
-import pl.powiescdosukcesu.dtos.RegisterUserDTO;
-import pl.powiescdosukcesu.entities.PowiesciUser;
-import pl.powiescdosukcesu.entities.Role;
-import pl.powiescdosukcesu.repositories.RoleRepository;
-import pl.powiescdosukcesu.repositories.UserRepository;
 
 @Service
 @Transactional
@@ -46,26 +41,26 @@ public class UserServiceImpl implements UserService {
 
 	//TODO possible to assign null to PowiesciUser
 	@Override
-	public PowiesciUser getUser(long id) {
+	public AppUser getUser(long id) {
 
-		Optional<PowiesciUser> opt = userRep.findById(id);
-		PowiesciUser user = opt.get();
+		Optional<AppUser> opt = userRep.findById(id);
+		AppUser user = opt.get();
 		return user;
 	}
 
 	@Override
-	public PowiesciUser getUser(String userName) {
+	public AppUser getUser(String userName) {
 		
-		PowiesciUser user= userRep.findByUsername(userName);
+		AppUser user= userRep.findByUsername(userName);
 		 
 		return user;
 	}
 
 	@Override
-	public List<PowiesciUser> getAllUsers() {
+	public List<AppUser> getAllUsers() {
 
-		Iterable<PowiesciUser> iterableUser = userRep.findAll();
-		List<PowiesciUser> users = new ArrayList<>();
+		Iterable<AppUser> iterableUser = userRep.findAll();
+		List<AppUser> users = new ArrayList<>();
 
 		iterableUser.forEach(u -> users.add(u));
 
@@ -76,7 +71,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 
-		PowiesciUser user = userRep.findByUsername(userName);
+		AppUser user = userRep.findByUsername(userName);
 
 		if (user == null) {
 			throw new UsernameNotFoundException("Invalid username or password.");
@@ -89,7 +84,7 @@ public class UserServiceImpl implements UserService {
 	@Async
 	public void saveUser(RegisterUserDTO formUser) {
 
-		PowiesciUser user = new PowiesciUser();
+		AppUser user = new AppUser();
 		user.setUserName(formUser.getUserName());
 		user.setPassword(passwordEncoder.encode(formUser.getPassword()));
 		user.setFirstName(formUser.getFirstName());
@@ -110,7 +105,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Async
-	public void deleteUser(PowiesciUser user) {
+	public void deleteUser(AppUser user) {
 		
 		userRep.delete(user);
 		

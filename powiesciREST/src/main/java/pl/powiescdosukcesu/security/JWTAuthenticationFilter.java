@@ -25,7 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.powiescdosukcesu.entities.PowiesciUser;
+import pl.powiescdosukcesu.appuser.AppUser;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	private AuthenticationManager authenticationManager;
@@ -38,9 +38,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
 			throws AuthenticationException {
 
-		PowiesciUser creds = null;
+		AppUser creds = null;
 		try {
-			creds = new ObjectMapper().readValue(req.getInputStream(), PowiesciUser.class);
+			creds = new ObjectMapper().readValue(req.getInputStream(), AppUser.class);
 
 		} catch (Exception e) {
 
