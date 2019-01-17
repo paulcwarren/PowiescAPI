@@ -17,11 +17,12 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import pl.powiescdosukcesu.book.Comment;
+import pl.powiescdosukcesu.appuser.UserService;
 import pl.powiescdosukcesu.book.Book;
 import pl.powiescdosukcesu.book.BookRepository;
 import pl.powiescdosukcesu.book.BookService;
 import pl.powiescdosukcesu.book.BookServiceImpl;
+import pl.powiescdosukcesu.book.Comment;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -46,6 +47,10 @@ public class FileServiceTest {
 	
 	@Autowired
 	private BookRepository bookRepository;
+	
+	@Autowired
+	private UserService userService;
+	
 
 	
 	@Test

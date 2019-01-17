@@ -18,11 +18,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import lombok.Data;
 import pl.powiescdosukcesu.appuser.AppUser;
 
 @Entity
 @Table(name = "comments")
 @EntityListeners(AuditingEntityListener.class)
+@Data
 public class Comment implements Comparable<Comment> {
 
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,62 +41,22 @@ public class Comment implements Comparable<Comment> {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
-	@JsonIgnoreProperties(value="comments")
+	@JsonIgnoreProperties(value = "comments")
 	private AppUser user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "file_id")
-	@JsonIgnoreProperties(value="comments")
+	@JsonIgnoreProperties(value = "comments")
 	private Book file;
 
 	public Comment() {
 
 	}
 
-	public Comment(String content,AppUser user){
-		
-		this.content=content;
-		this.user=user;
-	}
+	public Comment(String content, AppUser user) {
 
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
 		this.content = content;
-	}
-
-	public LocalDateTime getCreationDate() {
-		return creationDate;
-	}
-
-	public void setCreationDate(LocalDateTime creationDate) {
-		this.creationDate = creationDate;
-	}
-
-	public AppUser getUser() {
-		return user;
-	}
-
-	public void setUser(AppUser user) {
 		this.user = user;
-	}
-
-	public Book getFile() {
-		return file;
-	}
-
-	public void setFile(Book file) {
-		this.file = file;
 	}
 
 	@Override

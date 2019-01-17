@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.errorresponses;
+package pl.powiescdosukcesu.appuser;
 
 public class FileEntErrorResponse {
 

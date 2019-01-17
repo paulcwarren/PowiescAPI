@@ -9,18 +9,20 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface BookRepository extends CrudRepository<Book, Long>, BookCustom {
+public interface BookRepository extends CrudRepository<Book, Long>, BookRepositoryCustom {
 
-	@Query("SELECT file FROM FileEnt file JOIN file.user user "
+	@Query("SELECT file FROM Book file JOIN file.user user "
 			+ "WHERE file.title LIKE %:keyword% OR user.userName LIKE %:keyword%" )
 	List<Book> findFilesByKeyword(@Param("keyword") String keyword);
 
 	List<Book> findByCreatedDate(LocalDate date);
 
-	@Query("SELECT file FROM FileEnt file JOIN file.genres genres WHERE genres.name IN (?1)")
+	@Query("SELECT file FROM Book file JOIN file.genres genres WHERE genres.name IN (?1)")
 	List<Book> findByGenres(String[] genreName);
 	
 	@Query(value="SELECT image FROM images",
 			nativeQuery=true)
 	List<byte[]> loadImages();
+	
+	
 }

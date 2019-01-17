@@ -1,13 +1,14 @@
 package pl.powiescdosukcesu.book;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
-import pl.powiescdosukcesu.appuser.AppUser;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface BookService {
 
-	void saveFile(Book file,AppUser user);
+	void saveFile(MultipartFile file, String title, String[] genres, byte[] image, String username) throws IOException;
 	Book getFileById(long id);
 	void deleteBook(Book file);
 	List<Book> getFilesByKeyword(String keyword);
@@ -17,4 +18,5 @@ public interface BookService {
 	void updateFile(Book file);
 	List<String> loadImages();
 	void deleteFileById(long id);
+	void addComment(Book file,String comment);
 }

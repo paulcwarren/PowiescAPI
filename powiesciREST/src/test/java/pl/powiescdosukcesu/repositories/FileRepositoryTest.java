@@ -138,7 +138,7 @@ public class FileRepositoryTest {
 		file.setFile(stringByte);
 		file.setGenres(getFile.getGenres());
 		ExpectedException.none();
-		fileRep.updateFile(file);
+		fileRep.updateBook(file);
 		
 		Book doneFile = fileRep.findById(file.getId()).get();
 

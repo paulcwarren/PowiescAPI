@@ -3,8 +3,8 @@ package pl.powiescdosukcesu.book;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -29,6 +29,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import pl.powiescdosukcesu.appuser.AppUser;
 
@@ -36,6 +38,8 @@ import pl.powiescdosukcesu.appuser.AppUser;
 @Table(name = "files")
 @EntityListeners(AuditingEntityListener.class)
 @Data
+@AllArgsConstructor
+@Builder
 public class Book implements Serializable {
 
 	/**
@@ -64,12 +68,10 @@ public class Book implements Serializable {
 	@Column(name = "rating")
 	private double rating;
 
-	/*
-	 * @Column(name= "votes") private long votes;
-	 */
-
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinTable(name = "files_genres", joinColumns = @JoinColumn(name = "file_id"), inverseJoinColumns= @JoinColumn(name="genre_id"))
+	@JoinTable(name = "files_genres",
+				joinColumns = @JoinColumn(name = "file_id"),
+				inverseJoinColumns = @JoinColumn(name = "genre_id"))
 	private Set<Genre> genres;
 
 	@OneToMany(mappedBy = "file", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -79,14 +81,20 @@ public class Book implements Serializable {
 	@NotNull
 	private byte[] file;
 
-	@ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST,
-			CascadeType.REFRESH })
+	@ManyToOne(fetch = FetchType.EAGER,
+			   cascade = {
+					   CascadeType.DETACH,
+					   CascadeType.MERGE,
+					   CascadeType.PERSIST,
+			           CascadeType.REFRESH 
+			           })
 	@JoinColumn(name = "user_id")
 	private AppUser user;
 
 	public Book() {
-		
+
 	}
+
 	public Book(String title, byte[] image, Set<Genre> genres, byte[] file) {
 
 		this.title = title;
@@ -99,7 +107,7 @@ public class Book implements Serializable {
 	public void addComment(Comment comment) {
 
 		if (this.comments == null)
-			comments = new TreeSet<>();
+			comments = new HashSet<>();
 		comment.setFile(this);
 		this.comments.add(comment);
 	}

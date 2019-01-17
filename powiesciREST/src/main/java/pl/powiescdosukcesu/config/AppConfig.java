@@ -1,12 +1,8 @@
 package pl.powiescdosukcesu.config;
 
-import java.util.stream.Collectors;
-
 import javax.sql.DataSource;
 
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.spi.MappingContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -20,9 +16,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
-import pl.powiescdosukcesu.book.Book;
-import pl.powiescdosukcesu.book.BookShortInfoDTO;
-
 @Configuration
 @EntityScan("pl.powiescdosukcesu.entities")
 @EnableTransactionManagement
@@ -31,6 +24,10 @@ import pl.powiescdosukcesu.book.BookShortInfoDTO;
 @EnableAsync
 @EnableJpaAuditing
 public class AppConfig {
+
+	private final static int maxUploadSize = 100000;
+
+	private final static int maxInMemorySize = 100000;
 
 	@Value("${spring.datasource.driver-class-name}")
 	private String driverClassName;
@@ -47,8 +44,8 @@ public class AppConfig {
 	@Bean(name = "multipartResolver")
 	public CommonsMultipartResolver multipartResolver() {
 		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
-		multipartResolver.setMaxUploadSize(100000);
-		multipartResolver.setMaxInMemorySize(100000);
+		multipartResolver.setMaxUploadSize(maxUploadSize);
+		multipartResolver.setMaxInMemorySize(maxInMemorySize);
 		return multipartResolver;
 	}
 
@@ -62,8 +59,12 @@ public class AppConfig {
 	@Bean
 	public DataSource dataSource() {
 
-		DataSource dataSource = DataSourceBuilder.create().username(username).password(password).url(url)
-				.driverClassName(driverClassName).build();
+		DataSource dataSource = DataSourceBuilder.create()
+				.username(username)
+				.password(password)
+				.url(url)
+				.driverClassName(driverClassName)
+				.build();
 
 		return dataSource;
 
