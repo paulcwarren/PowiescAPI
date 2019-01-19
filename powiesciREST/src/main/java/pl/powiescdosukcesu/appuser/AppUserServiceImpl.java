@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import org.apache.commons.codec.binary.Base64;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,24 +21,20 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.RequiredArgsConstructor;
 
-@Service
 @Transactional
 @DependsOn("securityConfig")
-@Log4j2
-public class UserServiceImpl implements UserService {
+@Service("appUserService")
+@RequiredArgsConstructor
+public class AppUserServiceImpl implements AppUserService {
 
-	@Autowired
-	private UserRepository userRep;
+	private final AppUserRepository userRep;
 
-	@Autowired
-	private RoleRepository roleRep;
+	private final RoleRepository roleRep;
 
-	@Autowired
-	private BCryptPasswordEncoder passwordEncoder;
+	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-	//TODO possible to assign null to PowiesciUser
 	@Override
 	public AppUser getUser(long id) {
 
@@ -50,9 +45,9 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public AppUser getUser(String userName) {
-		
-		AppUser user= userRep.findByUsername(userName);
-		 
+
+		AppUser user = userRep.findByUsername(userName);
+
 		return user;
 	}
 
@@ -77,7 +72,7 @@ public class UserServiceImpl implements UserService {
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}
 
-		return new User(user.getUserName(),user.getPassword(),mapRolesToAuthorities(user.getRoles()));
+		return new User(user.getUserName(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
 	}
 
 	@Override
@@ -86,17 +81,17 @@ public class UserServiceImpl implements UserService {
 
 		AppUser user = new AppUser();
 		user.setUserName(formUser.getUserName());
-		user.setPassword(passwordEncoder.encode(formUser.getPassword()));
+		user.setPassword(bCryptPasswordEncoder.encode(formUser.getPassword()));
 		user.setFirstName(formUser.getFirstName());
 		user.setLastName(formUser.getLastName());
 		user.setEmail(formUser.getEmail());
 		user.setGender(formUser.getGender());
-		
+
 		Base64 base = new Base64();
-		String stringImage=formUser.getImage();
-		
+		String stringImage = formUser.getImage();
+
 		user.setImage(base.decode(stringImage.getBytes()));
-		
+
 		user.setRoles(Arrays.asList(roleRep.findRoleByName("ROLE_NORMAL_USER")));
 
 		userRep.save(user);
@@ -106,11 +101,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Async
 	public void deleteUser(AppUser user) {
-		
+
 		userRep.delete(user);
-		
+
 	}
-	
+
 	private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
 		return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
 	}

@@ -92,7 +92,7 @@ public class Book implements Serializable {
 	private AppUser user;
 
 	public Book() {
-
+		
 	}
 
 	public Book(String title, byte[] image, Set<Genre> genres, byte[] file) {

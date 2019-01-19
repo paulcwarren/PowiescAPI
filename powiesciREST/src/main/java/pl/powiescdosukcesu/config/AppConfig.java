@@ -10,17 +10,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 @Configuration
-@EntityScan("pl.powiescdosukcesu.entities")
+@EntityScan("pl.powiescdosukcesu")
 @EnableTransactionManagement
 @PropertySource("classpath:application.properties")
-@EnableJpaRepositories(basePackages = "pl.powiescdosukcesu.repositories")
 @EnableAsync
 @EnableJpaAuditing
 public class AppConfig {
@@ -77,6 +75,7 @@ public class AppConfig {
 
 		return modelMapper;
 	}
+	
 	/*
 	 * @Bean public CacheManager cacheManager() { return new
 	 * ConcurrentMapCacheManager("files"); }

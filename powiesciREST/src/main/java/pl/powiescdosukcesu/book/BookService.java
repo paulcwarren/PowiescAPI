@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+
 public interface BookService {
 
 	void saveFile(MultipartFile file, String title, String[] genres, byte[] image, String username) throws IOException;
@@ -14,9 +15,9 @@ public interface BookService {
 	List<Book> getFilesByKeyword(String keyword);
 	List<Book> getFiles();
 	List<Book> getFilesByGenres(String[] genres);
-	List<Book> getFilesByDate(LocalDate date);
+	List<Book> getFilesByDate(String date);
 	void updateFile(Book file);
 	List<String> loadImages();
-	void deleteFileById(long id);
+	void deleteBookById(long id);
 	void addComment(Book file,String comment);
 }

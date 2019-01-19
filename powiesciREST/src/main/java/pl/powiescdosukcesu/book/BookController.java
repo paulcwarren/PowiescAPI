@@ -75,7 +75,7 @@ public class BookController {
 	}
 
 	@GetMapping("/byDate")
-	public List<Book> filterByGenre(@RequestParam("creationDate") LocalDate creationDate) {
+	public List<Book> filterByGenre(@RequestParam("creationDate") String creationDate) {
 
 		return bookService.getFilesByDate(creationDate);
 	}
@@ -115,11 +115,7 @@ public class BookController {
 		bookService.saveFile(file, title, genres, image, principal.getName());
 
 	}
-	
-	@PostMapping
-	public ResponseEntity<String> addComment(Book book,String comment){
-		return null;
-	}
+
 
 	@GetMapping("/images")
 	public List<String> loadImages() {

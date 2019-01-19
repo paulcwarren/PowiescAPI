@@ -4,7 +4,6 @@ import java.security.Principal;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -15,29 +14,31 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/users")
-public class UserRestController {
+@RequiredArgsConstructor
+public class AppUserRestController {
 
-	@Autowired
-	private UserService userService;
+	private final AppUserService appUserService;
 
 	@GetMapping("{name}")
 	public AppUser getUser(@PathVariable String name) {
 
-		return userService.getUser(name);
+		return appUserService.getUser(name);
 	}
 
 	@PostMapping
 	public void saveUser(@Valid @RequestBody RegisterUserDTO user, BindingResult bindingResult) {
-		
-		userService.saveUser(user);
+
+		appUserService.saveUser(user);
 	}
 
 	@GetMapping("/login")
 	public ResponseEntity<String> isAuthenticated(Principal principal) {
 
-		AppUser user = userService.getUser(principal.getName());
+		AppUser user = appUserService.getUser(principal.getName());
 		if (user != null)
 			return new ResponseEntity<String>(user.getUserName(), HttpStatus.OK);
 		else

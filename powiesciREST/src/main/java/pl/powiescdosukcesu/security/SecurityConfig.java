@@ -21,7 +21,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import pl.powiescdosukcesu.appuser.UserService;
+import pl.powiescdosukcesu.appuser.AppUserService;
 
 @Configuration
 @EnableWebSecurity
@@ -30,7 +30,7 @@ import pl.powiescdosukcesu.appuser.UserService;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	private UserService userService;
+	private AppUserService appUserService;
 
 	@Autowired
 	private AuthenticationEntryPoint authenticationEntryPoint;
@@ -72,7 +72,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public DaoAuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
-		auth.setUserDetailsService(userService);
+		auth.setUserDetailsService(appUserService);
 		auth.setPasswordEncoder(passwordEncoder());
 		return auth;
 	}

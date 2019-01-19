@@ -1,16 +1,16 @@
-package pl.powiescdosukcesu.appuser;
+package pl.powiescdosukcesu.book;
 
-public class FileEntErrorResponse {
+public class BookErrorResponse {
 
 	private int status;
 	private String message;
 	private long timeStamp;
 
-	public FileEntErrorResponse() {
+	public BookErrorResponse() {
 
 	}
 
-	public FileEntErrorResponse(int status, String message, long timeStamp) {
+	public BookErrorResponse(int status, String message, long timeStamp) {
 		
 		this.status=status;
 		this.message=message;

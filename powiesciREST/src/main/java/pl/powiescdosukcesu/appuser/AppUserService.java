@@ -3,8 +3,10 @@ package pl.powiescdosukcesu.appuser;
 import java.util.List;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
 
-public interface UserService extends UserDetailsService {
+
+public interface AppUserService extends UserDetailsService{
 
 	AppUser getUser(long id);
 
@@ -13,7 +15,7 @@ public interface UserService extends UserDetailsService {
 	List<AppUser> getAllUsers();
 
 	void saveUser(RegisterUserDTO user);
-	
+
 	void deleteUser(AppUser user);
 
 }

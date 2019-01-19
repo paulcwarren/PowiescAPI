@@ -5,15 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import pl.powiescdosukcesu.appuser.FileEntErrorResponse;
-
 @ControllerAdvice
 public class BookRestControllerAdvice {
 
 	@ExceptionHandler
-	public ResponseEntity<FileEntErrorResponse> handleException(BookNotFoundException exc){
+	public ResponseEntity<BookErrorResponse> handleException(BookNotFoundException exc){
 		
-		FileEntErrorResponse error = new FileEntErrorResponse(
+		BookErrorResponse error = new BookErrorResponse(
 											HttpStatus.NOT_FOUND.value(),
 											exc.getMessage(),
 											System.currentTimeMillis());
