@@ -1,15 +1,7 @@
 
 package pl.powiescdosukcesu.appuser;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
-
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.Async;
@@ -21,7 +13,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
+import javax.transaction.Transactional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Transactional
 @DependsOn("securityConfig")
@@ -57,7 +51,7 @@ public class AppUserServiceImpl implements AppUserService {
 		Iterable<AppUser> iterableUser = userRep.findAll();
 		List<AppUser> users = new ArrayList<>();
 
-		iterableUser.forEach(u -> users.add(u));
+		iterableUser.forEach(users::add);
 
 		return users;
 
@@ -92,7 +86,7 @@ public class AppUserServiceImpl implements AppUserService {
 
 		user.setImage(base.decode(stringImage.getBytes()));
 
-		user.setRoles(Arrays.asList(roleRep.findRoleByName("ROLE_NORMAL_USER")));
+		user.setRoles(Collections.singletonList(roleRep.findRoleByName("ROLE_NORMAL_USER")));
 
 		userRep.save(user);
 

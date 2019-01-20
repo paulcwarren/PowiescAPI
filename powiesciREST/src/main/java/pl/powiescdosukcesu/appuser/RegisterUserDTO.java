@@ -1,10 +1,10 @@
 package pl.powiescdosukcesu.appuser;
 
+import pl.powiescdosukcesu.validation.annotations.NotUsed;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-
-import pl.powiescdosukcesu.validation.annotations.NotUsed;
 
 //@PasswordMatch
 public class RegisterUserDTO {

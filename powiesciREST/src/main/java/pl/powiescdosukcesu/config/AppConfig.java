@@ -1,7 +1,5 @@
 package pl.powiescdosukcesu.config;
 
-import javax.sql.DataSource;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -14,6 +12,8 @@ import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EntityScan("pl.powiescdosukcesu")
@@ -57,23 +57,19 @@ public class AppConfig {
 	@Bean
 	public DataSource dataSource() {
 
-		DataSource dataSource = DataSourceBuilder.create()
-				.username(username)
-				.password(password)
-				.url(url)
-				.driverClassName(driverClassName)
-				.build();
-
-		return dataSource;
+        return DataSourceBuilder.create()
+                .username(username)
+                .password(password)
+                .url(url)
+                .driverClassName(driverClassName)
+                .build();
 
 	}
 
 	@Bean
 	public ModelMapper modelMapper() {
 
-		ModelMapper modelMapper = new ModelMapper();
-
-		return modelMapper;
+        return new ModelMapper();
 	}
 	
 	/*

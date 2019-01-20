@@ -1,38 +1,23 @@
 package pl.powiescdosukcesu.book;
 
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
 import pl.powiescdosukcesu.appuser.AppUser;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "files")
@@ -77,7 +62,7 @@ public class Book implements Serializable {
 	@OneToMany(mappedBy = "file", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private Set<Comment> comments;
 
-	@Column(name = "file", updatable = true)
+	@Column(name = "file")
 	@NotNull
 	private byte[] file;
 
@@ -116,18 +101,13 @@ public class Book implements Serializable {
 		Base64 base = new Base64();
 		backgroundImage = base.encode(backgroundImage);
 
-		try {
-			return new String(backgroundImage, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+		return new String(backgroundImage, StandardCharsets.UTF_8);
 
-		return "Error";
+
 	}
 
 	public String getContent() {
-		String content = new String(file);
-		return content;
+		return new String(file);
 	}
 
 }

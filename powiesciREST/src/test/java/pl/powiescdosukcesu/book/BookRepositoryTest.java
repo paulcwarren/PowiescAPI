@@ -1,13 +1,5 @@
 package pl.powiescdosukcesu.book;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -16,8 +8,15 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import pl.powiescdosukcesu.appuser.AppUser;
+
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -33,16 +32,16 @@ public class BookRepositoryTest {
 	@Before
 	public void prepeareSomedData() {
 
-		Set<Genre> genres = new HashSet<Genre>();
+		Set<Genre> genres = new HashSet<>();
 		genres.add(new Genre("Horror"));
 		genres.add(new Genre("Romance"));
 		Book book = Book.builder()
 				.id(1)
 				.user(new AppUser("test", "test", null, null, "test@as.pl"))
 				.title("Harry Potter")
-				.backgroundImage(new String("image").getBytes())
+				.backgroundImage("image".getBytes())
 				.genres(genres)
-				.file(new String("file").getBytes())
+				.file("file".getBytes())
 				.build();
 		bookRep.save(book);
 		genres.add(new Genre("Comedy"));
@@ -51,9 +50,9 @@ public class BookRepositoryTest {
 				.id(2)
 				.user(new AppUser("admin", "admin", null, null, "admin@as.pl"))
 				.title("Harry Potter")
-				.backgroundImage(new String("image").getBytes())
+				.backgroundImage("image".getBytes())
 				.genres(genres)
-				.file(new String("file").getBytes())
+				.file("file".getBytes())
 				.build();
 
 		

@@ -1,9 +1,5 @@
 package pl.powiescdosukcesu.repositories;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -12,10 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import pl.powiescdosukcesu.appuser.AppUser;
 import pl.powiescdosukcesu.appuser.AppUserRepository;
 import pl.powiescdosukcesu.appuser.RoleRepository;
+
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -55,7 +54,7 @@ public class UserRepositoryTest {
 		user.setEmail("cos@s.pl");
 
 		user.setGender("M");
-		user.setRoles(Arrays.asList(roleRep.findRoleByName("ROLE_EMPLOYEE")));
+		user.setRoles(Collections.singletonList(roleRep.findRoleByName("ROLE_EMPLOYEE")));
 
 		ExpectedException.none();
 		userRep.save(user);

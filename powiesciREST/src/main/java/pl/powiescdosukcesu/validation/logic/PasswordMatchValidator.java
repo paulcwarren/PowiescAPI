@@ -1,10 +1,10 @@
 package pl.powiescdosukcesu.validation.logic;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
 import pl.powiescdosukcesu.appuser.RegisterUserDTO;
 import pl.powiescdosukcesu.validation.annotations.PasswordMatch;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 public class PasswordMatchValidator implements ConstraintValidator<PasswordMatch,Object> {
 

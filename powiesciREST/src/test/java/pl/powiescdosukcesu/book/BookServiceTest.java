@@ -1,19 +1,6 @@
 package pl.powiescdosukcesu.book;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.*;
-
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,14 +9,12 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import pl.powiescdosukcesu.appuser.AppUserServiceImpl;
-import pl.powiescdosukcesu.book.Book;
-import pl.powiescdosukcesu.book.BookNotFoundException;
-import pl.powiescdosukcesu.book.BookRepository;
-import pl.powiescdosukcesu.book.BookServiceImpl;
-import pl.powiescdosukcesu.book.Genre;
-import pl.powiescdosukcesu.book.GenreRepository;
+
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BookServiceTest {
@@ -49,7 +34,6 @@ public class BookServiceTest {
 	@InjectMocks
 	private BookServiceImpl bookService;
 
-	private Book book, book2;
 	private List<Book> books = new ArrayList<>();
 
 	@Before
@@ -59,19 +43,19 @@ public class BookServiceTest {
 		Set<Genre> genres = new HashSet<>();
 		genres.add(new Genre("Komedia"));
 		genres.add(new Genre("Horror"));
-		book = Book.builder()
+		Book book = Book.builder()
 				.id(1)
 				.title("Harry Potter")
-				.backgroundImage(new String("image").getBytes())
-				.file(new String("file").getBytes())
+				.backgroundImage("image".getBytes())
+				.file("file".getBytes())
 				.genres(genres)
 				.build();
-	
-		book2 = Book.builder()
+
+		Book book2 = Book.builder()
 				.id(2)
 				.title("James Bond")
-				.backgroundImage(new String("image").getBytes())
-				.file(new String("file").getBytes())
+				.backgroundImage("image".getBytes())
+				.file("file".getBytes())
 				.genres(genres)
 				.build();
 		books.add(book);
@@ -101,7 +85,7 @@ public class BookServiceTest {
 	public void whenBookIdNotFoundShouldThrowBookNotFoundException() {
 		
 		//given
-		given(bookRep.findById(3l)).willReturn(Optional.empty());
+		given(bookRep.findById(3L)).willReturn(Optional.empty());
 		
 		//then
 		bookService.getFileById(3);

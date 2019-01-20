@@ -1,9 +1,8 @@
 package pl.powiescdosukcesu.appuser;
 
-import java.util.List;
-
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 public interface AppUserService extends UserDetailsService{

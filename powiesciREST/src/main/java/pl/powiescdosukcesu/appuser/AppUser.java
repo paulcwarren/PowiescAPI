@@ -1,30 +1,17 @@
 package pl.powiescdosukcesu.appuser;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 import lombok.Data;
 import pl.powiescdosukcesu.book.Book;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
@@ -94,11 +81,11 @@ public class AppUser implements Serializable {
 		this.roles = roles;
 	}
 
-	public void addFile(Book file) {
+	public void addFile(Book book) {
 		if (files == null)
 			files = new LinkedList<>();
-		file.setUser(this);
-		this.getFiles().add(file);
+		book.setUser(this);
+		this.getFiles().add(book);
 
 	}
 
