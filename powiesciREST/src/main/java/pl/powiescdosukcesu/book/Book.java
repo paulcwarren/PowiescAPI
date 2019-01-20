@@ -106,8 +106,5 @@ public class Book implements Serializable {
 
 	}
 
-	public String getContent() {
-		return new String(file);
-	}
 
 }

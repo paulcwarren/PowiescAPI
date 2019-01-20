@@ -1,5 +1,6 @@
 package pl.powiescdosukcesu.appuser;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.powiescdosukcesu.validation.annotations.NotUsed;
@@ -11,6 +12,7 @@ import javax.validation.constraints.Size;
 //@PasswordMatch
 @Data
 @NoArgsConstructor
+@Builder
 public class RegisterUserDTO {
 
 

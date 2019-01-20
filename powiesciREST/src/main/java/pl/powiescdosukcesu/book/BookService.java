@@ -4,7 +4,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -20,6 +19,6 @@ public interface BookService {
 	Book updateBook(Book book);
 	List<String> loadImages();
 	void deleteBookById(long id);
-	void addComment(Book book,String comment);
+	Book addComment(Book book,String comment);
 	Book saveBook(Book book);
 }

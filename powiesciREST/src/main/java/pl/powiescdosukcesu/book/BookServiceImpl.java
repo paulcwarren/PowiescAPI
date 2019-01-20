@@ -31,11 +31,10 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> getBooks() {
 
-        Iterable<Book> iterableFiles = bookRep.findAll();
-
-        List<Book> files = new ArrayList<>();
-
-        iterableFiles.forEach(files::add);
+        List<Book> files = bookRep.findAll();
+        if(files.isEmpty()) {
+            throw new BookNotFoundException();
+        }
 
         return files;
 
@@ -80,12 +79,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book saveBook(Book book){
+    public Book saveBook(Book book) {
 
-        if(book!=null) {
+        if (book != null) {
             bookRep.save(book);
             return book;
-        }else{
+        } else {
             throw new NullPointerException("Book cannot be null");
         }
     }
@@ -121,10 +120,10 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Async
-    public void deleteBook(Book file) {
-        Optional<Book> optionalBook = bookRep.findById(file.getId());
+    public void deleteBook(Book book) {
+        Optional<Book> optionalBook = bookRep.findOneByTitle(book.getTitle());
         if (optionalBook.isPresent()) {
-            bookRep.delete(file);
+            bookRep.delete(book);
         } else {
             throw new BookNotFoundException();
         }
@@ -143,18 +142,19 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book updateBook(Book file) {
+    public Book updateBook(Book book) {
 
-        if(file!=null) {
-            Optional<Book> optionalBook = bookRep.findById(file.getId());
+        if (book != null) {
+            Optional<Book> optionalBook = bookRep.findOneByTitle(book.getTitle());
             if (optionalBook.isPresent()) {
-                file.setUser(getBookById(file.getId()).getUser());
-                bookRep.updateBook(file);
-                return file;
+                book.setUser(getBookById(book.getId()).getUser());
+                bookRep.updateBook(book);
+                return book;
             } else {
                 throw new BookNotFoundException();
             }
-        }else{
+
+        } else {
             throw new NullPointerException("File cannot be null");
         }
 
@@ -189,11 +189,24 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void addComment(Book file, String content) {
+    public Book addComment(Book book, String content) {
 
-        Comment comment = new Comment(content, file.getUser());
-        file.addComment(comment);
-        updateBook(file);
+        if (book != null) {
+
+            if (bookRep.findOneByTitle(book.getTitle()).isPresent()) {
+                Comment comment = new Comment(content, book.getUser());
+                book.addComment(comment);
+                updateBook(book);
+                return book;
+
+            } else {
+                throw new BookNotFoundException();
+            }
+        } else {
+
+            throw new NullPointerException("Book cannot be null");
+        }
+
 
     }
 

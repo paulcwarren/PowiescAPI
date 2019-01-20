@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.METHOD })
 public @interface NotUsed {
 
-	String message() default "*Nazwa użytkownika już zajęta";
+	String message() default "*Username already in use";
 	
 	Class<?>[] groups() default {};
 

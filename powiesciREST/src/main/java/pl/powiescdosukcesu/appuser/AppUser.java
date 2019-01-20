@@ -4,18 +4,24 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import pl.powiescdosukcesu.book.Book;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 @Entity
 @Table(name = "user")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class AppUser implements Serializable {
 
 	/**
@@ -29,7 +35,7 @@ public class AppUser implements Serializable {
 	private long id;
 
 	@Column(name = "username")
-	private String userName;
+	private String username;
 
 	@Column(name = "password")
 	@JsonProperty(access = Access.WRITE_ONLY)
@@ -60,30 +66,18 @@ public class AppUser implements Serializable {
 	@JsonIgnoreProperties(value = { "user", "comments" })
 	private List<Book> files;
 
-	public AppUser() {
-	}
 
-	public AppUser(String userName, String password, String firstName, String lastName, String email) {
-		this.userName = userName;
+	public AppUser(String username, String password, String firstName, String lastName, String email) {
+		this.username = username;
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
-	}
-
-	public AppUser(String userName, String password, String firstName, String lastName, String email,
-			Collection<Role> roles) {
-		this.userName = userName;
-		this.password = password;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.email = email;
-		this.roles = roles;
 	}
 
 	public void addFile(Book book) {
 		if (files == null)
-			files = new LinkedList<>();
+			files = new ArrayList<>();
 		book.setUser(this);
 		this.getFiles().add(book);
 

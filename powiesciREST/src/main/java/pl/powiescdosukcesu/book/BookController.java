@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/books")
+@RequestMapping("/api/books")
 @CrossOrigin
 @Log4j2
 @RequiredArgsConstructor
@@ -34,10 +34,10 @@ public class BookController {
 
 
     @GetMapping
-    public List<BookShortInfoDTO> getFiles() {
+    public List<BookShortInfoDTO> getBooks() {
 
-        List<Book> files = bookService.getBooks();
-        return files.stream().map(file -> modelMapper.map(file, BookShortInfoDTO.class)).collect(Collectors.toList());
+        return bookService.getBooks().stream()
+                .map(file -> modelMapper.map(file, BookShortInfoDTO.class)).collect(Collectors.toList());
     }
 
     @GetMapping("/id/{fileId}")
@@ -50,35 +50,33 @@ public class BookController {
     @GetMapping("/{keyword}")
     public ResponseEntity<List<Book>> filterByKeyword(@PathVariable String keyword) {
         List<Book> files = bookService.getBooksByKeyword(keyword);
-        if (files == null)
-            throw new BookNotFoundException("Dana powieść nie istnieje");
 
         return new ResponseEntity<>(files, HttpStatus.OK);
     }
 
-    @GetMapping("/byGenre")
+    @GetMapping("/genre")
     public List<Book> filterByGenres(@RequestParam("genres") String[] genres) {
 
         return bookService.getBooksByGenres(genres);
     }
 
-    @GetMapping("/byDate")
+    @GetMapping("/date")
     public List<Book> filterByGenre(@RequestParam("creationDate") LocalDate creationDate) {
 
         return bookService.getBooksByDate(creationDate);
     }
 
     @DeleteMapping
-    @PreAuthorize("#file.user.userName == #principal.getName()")
+    @PreAuthorize("#file.user.username == #principal.getName()")
     public ResponseEntity<String> deleteBook(@RequestBody Book file, Principal principal) {
 
         bookService.deleteBook(file);
 
-        return new ResponseEntity<>("Udało się usunąć plik", HttpStatus.OK);
+        return new ResponseEntity<>("Book successfully deleted", HttpStatus.OK);
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("#book.user.userName == #principal.getName()")
+    @PreAuthorize("#book.user.username == #principal.getName()")
     public ResponseEntity<List<String>> updateBook(@Valid @RequestBody Book book, Principal principal, Errors errors) {
 
         List<String> errorMessages = new ArrayList<>();
@@ -91,7 +89,7 @@ public class BookController {
 
         bookService.updateBook(book);
 
-        return new ResponseEntity<>(Collections.singletonList("Plik został zaktualniony"), HttpStatus.OK);
+        return new ResponseEntity<>(Collections.singletonList("Book successfully updated"), HttpStatus.OK);
 
     }
 

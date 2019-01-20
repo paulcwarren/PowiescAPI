@@ -14,7 +14,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -23,85 +26,96 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AppUserServiceImpl implements AppUserService {
 
-	private final AppUserRepository userRep;
+    private final AppUserRepository userRep;
 
-	private final RoleRepository roleRep;
+    private final RoleRepository roleRep;
 
-	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-	@Override
-	public AppUser getUser(long id) {
+    @Override
+    public AppUser getUser(long id) {
+        Optional<AppUser> opt = userRep.findById(id);
+        if (opt.isPresent()) {
 
-		Optional<AppUser> opt = userRep.findById(id);
-		AppUser user = opt.get();
-		return user;
-	}
+            AppUser user = opt.get();
+            return user;
+        } else {
+            throw new AppUserNotFoundException();
+        }
+    }
 
-	@Override
-	public AppUser getUser(String userName) {
+    @Override
+    public AppUser getUser(String username) {
 
-		AppUser user = userRep.findByUsername(userName);
+        Optional<AppUser> opt = userRep.findByUsername(username);
+        if (opt.isPresent()) {
 
-		return user;
-	}
+            AppUser user = opt.get();
+            return user;
+        } else {
+            throw new AppUserNotFoundException();
+        }
+    }
 
-	@Override
-	public List<AppUser> getAllUsers() {
+    @Override
+    public List<AppUser> getAllUsers() {
 
-		Iterable<AppUser> iterableUser = userRep.findAll();
-		List<AppUser> users = new ArrayList<>();
+        List<AppUser> users = userRep.findAll();
+        if (users.isEmpty()) {
+            throw new AppUserNotFoundException("No users found");
+        }
 
-		iterableUser.forEach(users::add);
 
-		return users;
+        return users;
+    }
 
-	}
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-	@Override
-	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+        Optional<AppUser> opt = userRep.findByUsername(username);
 
-		AppUser user = userRep.findByUsername(userName);
+        if (opt.isEmpty()) {
+            throw new UsernameNotFoundException("Invalid username or password.");
+        } else {
+            AppUser user = opt.get();
+            return new User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
+        }
+    }
 
-		if (user == null) {
-			throw new UsernameNotFoundException("Invalid username or password.");
-		}
+    @Override
+    @Async
+    public void saveUser(RegisterUserDTO registerUser) {
 
-		return new User(user.getUserName(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
-	}
+        AppUser user = AppUser.builder()
+                .username(registerUser.getUserName())
+                .password(bCryptPasswordEncoder.encode(registerUser.getPassword()))
+                .email(registerUser.getEmail())
+                .firstName(registerUser.getFirstName())
+                .lastName(registerUser.getLastName())
+                .gender(registerUser.getGender())
+                .image(new Base64().decode(registerUser.getImage()))
+                .roles(Collections.singletonList(roleRep.findRoleByName("ROLE_NORMAL_USER")))
+                .build();
 
-	@Override
-	@Async
-	public void saveUser(RegisterUserDTO formUser) {
+        userRep.save(user);
 
-		AppUser user = new AppUser();
-		user.setUserName(formUser.getUserName());
-		user.setPassword(bCryptPasswordEncoder.encode(formUser.getPassword()));
-		user.setFirstName(formUser.getFirstName());
-		user.setLastName(formUser.getLastName());
-		user.setEmail(formUser.getEmail());
-		user.setGender(formUser.getGender());
+    }
 
-		Base64 base = new Base64();
-		String stringImage = formUser.getImage();
+    @Override
+    @Async
+    public void deleteUser(AppUser user) {
 
-		user.setImage(base.decode(stringImage.getBytes()));
+        if (user == null) {
+            throw new NullPointerException("User cannot be null");
+        } else {
+            userRep.delete(user);
+        }
 
-		user.setRoles(Collections.singletonList(roleRep.findRoleByName("ROLE_NORMAL_USER")));
 
-		userRep.save(user);
+    }
 
-	}
-
-	@Override
-	@Async
-	public void deleteUser(AppUser user) {
-
-		userRep.delete(user);
-
-	}
-
-	private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-		return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
-	}
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+    }
 
 }

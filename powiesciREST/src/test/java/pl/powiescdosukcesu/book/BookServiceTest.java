@@ -35,8 +35,9 @@ public class BookServiceTest {
 	@InjectMocks
 	private BookServiceImpl bookService;
 
-	private List<Book> books = new ArrayList<>();
+	private ArrayList<Book> books = new ArrayList<>();
     private Book book,book2;
+
 	@Before
 	public void setup() {
 		
@@ -72,10 +73,10 @@ public class BookServiceTest {
 
 	@Test
 	public void shouldLoadTwoFiles() {
-		Iterable<Book> iter = books;
+
 		
 		//given
-		given(bookRep.findAll()).willReturn(iter);
+		given(bookRep.findAll()).willReturn(books);
 		
 		//then
 		assertThat(bookService.getBooks().size()).isEqualTo(2);
@@ -117,7 +118,8 @@ public class BookServiceTest {
     public void whenBookGetsUpdatedShouldReturnBookWithCorrectUser(){
 
 	    //given
-        given(bookRep.findById(1L)).willReturn(Optional.of(book));
+        given(bookRep.findOneByTitle("Harry Potter")).willReturn(Optional.of(book));
+        given(bookRep.findById(1l)).willReturn(Optional.of(book));
 
         //then
         assertThat(bookService.updateBook(book)).isEqualTo(book);
@@ -133,6 +135,24 @@ public class BookServiceTest {
         //then
         assertThat(bookService.getBooksByDate(LocalDate.now()).size()).isEqualTo(2);
     }
+
+    @Test(expected = NullPointerException.class)
+    public void whenBookIsNullWhenAddingCommentThenShouldThrowNullPinterException(){
+
+	    bookService.addComment(null,"hejo");
+    }
+
+    @Test
+	public void whenAddingCommentToBookShouldInrcreaseNumberOfCommentsOfFileByOne(){
+
+	    //given
+        given(bookRep.findOneByTitle("Harry Potter")).willReturn(Optional.of(book));
+        given(bookRep.findById(1l)).willReturn(Optional.of(book));
+
+        //then
+        assertThat(bookService.addComment(book,"That's a good book").getComments().size()).isEqualTo(1);
+
+	}
 
 
 }

@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ TYPE, FIELD, METHOD })
 public @interface PasswordMatch {
 
-	String message() default "*Hasła nie są identyczne";
+	String message() default "*The passwords don't match";
 
 	Class<?>[] groups() default {};
 
