@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,20 +36,20 @@ public class BookController {
     @GetMapping
     public List<BookShortInfoDTO> getFiles() {
 
-        List<Book> files = bookService.getFiles();
+        List<Book> files = bookService.getBooks();
         return files.stream().map(file -> modelMapper.map(file, BookShortInfoDTO.class)).collect(Collectors.toList());
     }
 
     @GetMapping("/id/{fileId}")
     public ResponseEntity<Book> showContent(@PathVariable long fileId) {
-        Book file = bookService.getFileById(fileId);
+        Book file = bookService.getBookById(fileId);
         return new ResponseEntity<>(file, HttpStatus.OK);
 
     }
 
     @GetMapping("/{keyword}")
     public ResponseEntity<List<Book>> filterByKeyword(@PathVariable String keyword) {
-        List<Book> files = bookService.getFilesByKeyword(keyword);
+        List<Book> files = bookService.getBooksByKeyword(keyword);
         if (files == null)
             throw new BookNotFoundException("Dana powieść nie istnieje");
 
@@ -58,13 +59,13 @@ public class BookController {
     @GetMapping("/byGenre")
     public List<Book> filterByGenres(@RequestParam("genres") String[] genres) {
 
-        return bookService.getFilesByGenres(genres);
+        return bookService.getBooksByGenres(genres);
     }
 
     @GetMapping("/byDate")
-    public List<Book> filterByGenre(@RequestParam("creationDate") String creationDate) {
+    public List<Book> filterByGenre(@RequestParam("creationDate") LocalDate creationDate) {
 
-        return bookService.getFilesByDate(creationDate);
+        return bookService.getBooksByDate(creationDate);
     }
 
     @DeleteMapping
@@ -77,8 +78,8 @@ public class BookController {
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("#file.user.userName == #principal.getName()")
-    public ResponseEntity<List<String>> updateBook(@Valid @RequestBody Book file, Principal principal, Errors errors) {
+    @PreAuthorize("#book.user.userName == #principal.getName()")
+    public ResponseEntity<List<String>> updateBook(@Valid @RequestBody Book book, Principal principal, Errors errors) {
 
         List<String> errorMessages = new ArrayList<>();
         errors.getAllErrors().forEach(e -> errorMessages.add(e.getDefaultMessage()));
@@ -88,7 +89,7 @@ public class BookController {
             return new ResponseEntity<>(errorMessages, HttpStatus.BAD_REQUEST);
         }
 
-        bookService.updateFile(file);
+        bookService.updateBook(book);
 
         return new ResponseEntity<>(Collections.singletonList("Plik został zaktualniony"), HttpStatus.OK);
 

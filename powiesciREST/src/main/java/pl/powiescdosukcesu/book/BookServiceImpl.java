@@ -29,7 +29,7 @@ public class BookServiceImpl implements BookService {
     private final GenreRepository genreRep;
 
     @Override
-    public List<Book> getFiles() {
+    public List<Book> getBooks() {
 
         Iterable<Book> iterableFiles = bookRep.findAll();
 
@@ -42,13 +42,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book getFileById(long id) {
+    public Book getBookById(long id) {
 
         Optional<Book> optionalBook = bookRep.findById(id);
         if (optionalBook.isPresent()) {
-            Book file = optionalBook.get();
-            file.getComments();
-            return file;
+            Book book = optionalBook.get();
+            return book;
         } else {
             throw new BookNotFoundException();
 
@@ -57,7 +56,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<Book> getFilesByKeyword(String keyword) {
+    public List<Book> getBooksByKeyword(String keyword) {
 
         List<Book> books = bookRep.findFilesByKeyword(keyword);
         if (!books.isEmpty()) {
@@ -69,7 +68,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<Book> getFilesByGenres(String[] genres) {
+    public List<Book> getBooksByGenres(String[] genres) {
 
         List<Book> books = bookRep.findByGenres(genres);
         if (!books.isEmpty()) {
@@ -77,6 +76,17 @@ public class BookServiceImpl implements BookService {
         } else {
             throw new BookNotFoundException();
 
+        }
+    }
+
+    @Override
+    public Book saveBook(Book book){
+
+        if(book!=null) {
+            bookRep.save(book);
+            return book;
+        }else{
+            throw new NullPointerException("Book cannot be null");
         }
     }
 
@@ -133,10 +143,21 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void updateFile(Book file) {
+    public Book updateBook(Book file) {
 
-        file.setUser(getFileById(file.getId()).getUser());
-        bookRep.updateBook(file);
+        if(file!=null) {
+            Optional<Book> optionalBook = bookRep.findById(file.getId());
+            if (optionalBook.isPresent()) {
+                file.setUser(getBookById(file.getId()).getUser());
+                bookRep.updateBook(file);
+                return file;
+            } else {
+                throw new BookNotFoundException();
+            }
+        }else{
+            throw new NullPointerException("File cannot be null");
+        }
+
 
     }
 
@@ -156,9 +177,8 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<Book> getFilesByDate(String dateName) {
+    public List<Book> getBooksByDate(LocalDate date) {
 
-        LocalDate date = LocalDate.parse(dateName);
         List<Book> books = bookRep.findByCreatedDate(date);
         if (!books.isEmpty()) {
             return books;
@@ -173,7 +193,7 @@ public class BookServiceImpl implements BookService {
 
         Comment comment = new Comment(content, file.getUser());
         file.addComment(comment);
-        updateFile(file);
+        updateBook(file);
 
     }
 

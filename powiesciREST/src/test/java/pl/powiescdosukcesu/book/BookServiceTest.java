@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import pl.powiescdosukcesu.appuser.AppUserServiceImpl;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +36,7 @@ public class BookServiceTest {
 	private BookServiceImpl bookService;
 
 	private List<Book> books = new ArrayList<>();
-
+    private Book book,book2;
 	@Before
 	public void setup() {
 		
@@ -43,7 +44,7 @@ public class BookServiceTest {
 		Set<Genre> genres = new HashSet<>();
 		genres.add(new Genre("Komedia"));
 		genres.add(new Genre("Horror"));
-		Book book = Book.builder()
+		book = Book.builder()
 				.id(1)
 				.title("Harry Potter")
 				.backgroundImage("image".getBytes())
@@ -51,7 +52,7 @@ public class BookServiceTest {
 				.genres(genres)
 				.build();
 
-		Book book2 = Book.builder()
+		book2 = Book.builder()
 				.id(2)
 				.title("James Bond")
 				.backgroundImage("image".getBytes())
@@ -77,7 +78,7 @@ public class BookServiceTest {
 		given(bookRep.findAll()).willReturn(iter);
 		
 		//then
-		assertThat(bookService.getFiles().size()).isEqualTo(2);
+		assertThat(bookService.getBooks().size()).isEqualTo(2);
 
 	}
 	
@@ -88,7 +89,7 @@ public class BookServiceTest {
 		given(bookRep.findById(3L)).willReturn(Optional.empty());
 		
 		//then
-		bookService.getFileById(3);
+		bookService.getBookById(3);
 	}
 	
 	@Test(expected=BookNotFoundException.class)
@@ -98,10 +99,40 @@ public class BookServiceTest {
 		given(bookRep.findByGenres(new String[] {"Comedy"})).willReturn(Collections.emptyList());
 		
 		//then
-		bookService.getFilesByGenres(new String[] {"Comedy"});
+		bookService.getBooksByGenres(new String[] {"Comedy"});
 	}
-	
-	
+
+	@Test(expected = NullPointerException.class)
+	public void whenPassingNullToSaveBookShouldThrowNullPointerException(){
+
+		bookService.saveBook(null);
+	}
+
+	@Test
+    public void shouldReturnSavedBook(){
+	    assertThat(bookService.saveBook(book)).isEqualTo(book);
+    }
+
+    @Test
+    public void whenBookGetsUpdatedShouldReturnBookWithCorrectUser(){
+
+	    //given
+        given(bookRep.findById(1L)).willReturn(Optional.of(book));
+
+        //then
+        assertThat(bookService.updateBook(book)).isEqualTo(book);
+        assertThat(bookService.updateBook(book).getUser()).isEqualTo(book.getUser());
+    }
+
+    @Test
+    public void whenSearchingForFilesCreatedTodayShouldReturnListOfTwoElements(){
+
+	    //given
+        given(bookRep.findByCreatedDate(LocalDate.now())).willReturn(books);
+
+        //then
+        assertThat(bookService.getBooksByDate(LocalDate.now()).size()).isEqualTo(2);
+    }
 
 
 }

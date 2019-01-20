@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -20,6 +21,7 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 @PropertySource("classpath:application.properties")
 @EnableAsync
+@EnableJpaRepositories(basePackages = "pl.powiescdosukcesu")
 @EnableJpaAuditing
 public class AppConfig {
 
