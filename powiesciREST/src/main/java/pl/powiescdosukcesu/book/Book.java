@@ -1,8 +1,6 @@
 package pl.powiescdosukcesu.book;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -16,7 +14,8 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -24,7 +23,9 @@ import java.util.Set;
 @EntityListeners(AuditingEntityListener.class)
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
+@ToString(exclude = {"comments","genres"})
 public class Book implements Serializable {
 
 	/**
@@ -60,7 +61,7 @@ public class Book implements Serializable {
 	private Set<Genre> genres;
 
 	@OneToMany(mappedBy = "file", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private Set<Comment> comments;
+	private List<Comment> comments;
 
 	@Column(name = "file")
 	@NotNull
@@ -76,10 +77,6 @@ public class Book implements Serializable {
 	@JoinColumn(name = "user_id")
 	private AppUser user;
 
-	public Book() {
-		
-	}
-
 	public Book(String title, byte[] image, Set<Genre> genres, byte[] file) {
 
 		this.title = title;
@@ -92,7 +89,7 @@ public class Book implements Serializable {
 	public void addComment(Comment comment) {
 
 		if (this.comments == null)
-			comments = new HashSet<>();
+			comments = new ArrayList<>();
 		comment.setFile(this);
 		this.comments.add(comment);
 	}

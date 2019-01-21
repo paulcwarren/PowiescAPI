@@ -8,11 +8,11 @@ import java.util.List;
 @Data
 public class BookShortInfoDTO {
 
-	private String title;
-	private byte[] file;
-	private byte[] backgroundImage;
-	private String user;
-	private List<Genre> genres;
-	private LocalDate createdDate;
+	public String title;
+	public byte[] file;
+	public byte[] backgroundImage;
+	public String username;
+	public List<String> genres;
+	public LocalDate createdDate;
 
 }

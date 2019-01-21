@@ -1,7 +1,7 @@
 package pl.powiescdosukcesu.book;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pl.powiescdosukcesu.appuser.AppUser;
@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "comments")
 @EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor
 @Data
 public class Comment implements Comparable<Comment> {
 
@@ -29,17 +30,13 @@ public class Comment implements Comparable<Comment> {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
-	@JsonIgnoreProperties(value = "comments")
 	private AppUser user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "file_id")
-	@JsonIgnoreProperties(value = "comments")
 	private Book file;
 
-	public Comment() {
 
-	}
 
 	public Comment(String content, AppUser user) {
 

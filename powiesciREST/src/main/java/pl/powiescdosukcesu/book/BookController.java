@@ -94,8 +94,11 @@ public class BookController {
     }
 
     @PostMapping
-    public void processFile(@RequestParam("file") MultipartFile file, @RequestParam("title") String title,
-                            @RequestParam("genres") String[] genres, @RequestParam("backGroundImage") byte[] image, Principal principal)
+    public void processFile(@RequestParam("file") MultipartFile file,
+                            @RequestParam("title") String title,
+                            @RequestParam("genres") String[] genres,
+                            @RequestParam("backGroundImage") byte[] image,
+                            Principal principal)
             throws IOException {
 
         bookService.saveFile(file, title, genres, image, principal.getName());

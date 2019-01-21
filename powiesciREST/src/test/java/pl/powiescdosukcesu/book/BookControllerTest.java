@@ -6,12 +6,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -70,5 +71,14 @@ public class BookControllerTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 
     }
+
+    @Test
+    @WithMockUser(value = "admin", roles = "NORMAL_USER")
+    public void whenUserDoesntOwnFileShouldReturnNotAuthorized(){
+
+        //
+
+    }
+
 
 }

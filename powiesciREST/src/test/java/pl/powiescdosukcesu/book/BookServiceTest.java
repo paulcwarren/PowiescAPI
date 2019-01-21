@@ -36,7 +36,7 @@ public class BookServiceTest {
 	private BookServiceImpl bookService;
 
 	private ArrayList<Book> books = new ArrayList<>();
-    private Book book,book2;
+    private Book book;
 
 	@Before
 	public void setup() {
@@ -53,7 +53,7 @@ public class BookServiceTest {
 				.genres(genres)
 				.build();
 
-		book2 = Book.builder()
+		Book book2 = Book.builder()
 				.id(2)
 				.title("James Bond")
 				.backgroundImage("image".getBytes())
@@ -119,7 +119,7 @@ public class BookServiceTest {
 
 	    //given
         given(bookRep.findOneByTitle("Harry Potter")).willReturn(Optional.of(book));
-        given(bookRep.findById(1l)).willReturn(Optional.of(book));
+        given(bookRep.findById(1L)).willReturn(Optional.of(book));
 
         //then
         assertThat(bookService.updateBook(book)).isEqualTo(book);
@@ -147,7 +147,7 @@ public class BookServiceTest {
 
 	    //given
         given(bookRep.findOneByTitle("Harry Potter")).willReturn(Optional.of(book));
-        given(bookRep.findById(1l)).willReturn(Optional.of(book));
+        given(bookRep.findById(1L)).willReturn(Optional.of(book));
 
         //then
         assertThat(bookService.addComment(book,"That's a good book").getComments().size()).isEqualTo(1);

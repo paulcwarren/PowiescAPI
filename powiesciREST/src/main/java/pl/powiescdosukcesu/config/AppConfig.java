@@ -1,6 +1,7 @@
 package pl.powiescdosukcesu.config;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -13,6 +14,8 @@ import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import pl.powiescdosukcesu.book.Book;
+import pl.powiescdosukcesu.book.BookShortInfoDTO;
 
 import javax.sql.DataSource;
 
@@ -25,9 +28,9 @@ import javax.sql.DataSource;
 @EnableJpaAuditing
 public class AppConfig {
 
-	private final static int maxUploadSize = 100000;
+	private final static int MAX_UPLOAD_SIZE = 100000;
 
-	private final static int maxInMemorySize = 100000;
+	private final static int MAX_IN_MEMORY_SIZE = 100000;
 
 	@Value("${spring.datasource.driver-class-name}")
 	private String driverClassName;
@@ -44,8 +47,8 @@ public class AppConfig {
 	@Bean(name = "multipartResolver")
 	public CommonsMultipartResolver multipartResolver() {
 		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
-		multipartResolver.setMaxUploadSize(maxUploadSize);
-		multipartResolver.setMaxInMemorySize(maxInMemorySize);
+		multipartResolver.setMaxUploadSize(MAX_UPLOAD_SIZE);
+		multipartResolver.setMaxInMemorySize(MAX_IN_MEMORY_SIZE);
 		return multipartResolver;
 	}
 
@@ -70,8 +73,12 @@ public class AppConfig {
 
 	@Bean
 	public ModelMapper modelMapper() {
-
-        return new ModelMapper();
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        mapper.typeMap(Book.class, BookShortInfoDTO.class)
+                .addMappings(m -> m.map(src -> src.getUser().getUsername(), BookShortInfoDTO::setUsername))
+                ;
+        return mapper;
 	}
 	
 	/*

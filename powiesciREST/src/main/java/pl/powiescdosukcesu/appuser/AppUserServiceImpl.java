@@ -37,8 +37,7 @@ public class AppUserServiceImpl implements AppUserService {
         Optional<AppUser> opt = userRep.findById(id);
         if (opt.isPresent()) {
 
-            AppUser user = opt.get();
-            return user;
+            return opt.get();
         } else {
             throw new AppUserNotFoundException();
         }
@@ -50,8 +49,7 @@ public class AppUserServiceImpl implements AppUserService {
         Optional<AppUser> opt = userRep.findByUsername(username);
         if (opt.isPresent()) {
 
-            AppUser user = opt.get();
-            return user;
+            return opt.get();
         } else {
             throw new AppUserNotFoundException();
         }
@@ -74,17 +72,18 @@ public class AppUserServiceImpl implements AppUserService {
 
         Optional<AppUser> opt = userRep.findByUsername(username);
 
-        if (opt.isEmpty()) {
-            throw new UsernameNotFoundException("Invalid username or password.");
-        } else {
+        if (opt.isPresent()) {
             AppUser user = opt.get();
             return new User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
+
+        } else {
+            throw new UsernameNotFoundException("Invalid username or password.");
         }
     }
 
     @Override
     @Async
-    public void saveUser(RegisterUserDTO registerUser) {
+    public AppUser saveUser(RegisterUserDTO registerUser) {
 
         AppUser user = AppUser.builder()
                 .username(registerUser.getUserName())
@@ -96,8 +95,9 @@ public class AppUserServiceImpl implements AppUserService {
                 .image(new Base64().decode(registerUser.getImage()))
                 .roles(Collections.singletonList(roleRep.findRoleByName("ROLE_NORMAL_USER")))
                 .build();
-
         userRep.save(user);
+
+        return user;
 
     }
 

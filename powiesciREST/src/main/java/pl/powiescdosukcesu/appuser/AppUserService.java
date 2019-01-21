@@ -13,7 +13,7 @@ public interface AppUserService extends UserDetailsService{
 
 	List<AppUser> getAllUsers();
 
-	void saveUser(RegisterUserDTO user);
+	AppUser saveUser(RegisterUserDTO user);
 
 	void deleteUser(AppUser user);
 
