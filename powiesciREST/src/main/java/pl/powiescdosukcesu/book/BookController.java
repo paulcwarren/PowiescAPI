@@ -17,6 +17,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,16 +68,15 @@ public class BookController {
     }
 
     @DeleteMapping
-    @PreAuthorize("#file.user.username == #principal.getName()")
-    public ResponseEntity<String> deleteBook(@RequestBody Book file, Principal principal) {
+    @PreAuthorize("isAuthenticated() and #book.user.getUsername() == #principal.getName()")
+    public ResponseEntity<String> deleteBook(@RequestBody Book book, Principal principal) {
 
-        bookService.deleteBook(file);
-
+        bookService.deleteBook(book);
         return new ResponseEntity<>("Book successfully deleted", HttpStatus.OK);
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("#book.user.username == #principal.getName()")
+    @PreAuthorize("isAuthenticated() and #book.user.username == #principal.getName()")
     public ResponseEntity<List<String>> updateBook(@Valid @RequestBody Book book, Principal principal, Errors errors) {
 
         List<String> errorMessages = new ArrayList<>();
@@ -88,22 +88,27 @@ public class BookController {
         }
 
         bookService.updateBook(book);
-
         return new ResponseEntity<>(Collections.singletonList("Book successfully updated"), HttpStatus.OK);
 
     }
 
     @PostMapping
-    public void processFile(@RequestParam("file") MultipartFile file,
-                            @RequestParam("title") String title,
-                            @RequestParam("genres") String[] genres,
-                            @RequestParam("backGroundImage") byte[] image,
-                            Principal principal)
-            throws IOException {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<String>> saveBook(@Valid @RequestBody Book book,Principal principal,Errors errors){
 
-        bookService.saveFile(file, title, genres, image, principal.getName());
+        List<String> errorMessages = new ArrayList<>();
+        errors.getAllErrors().forEach(e -> errorMessages.add(e.getDefaultMessage()));
+
+        if (errors.hasErrors()) {
+            errorMessages.forEach(log::info);
+            return new ResponseEntity<>(errorMessages, HttpStatus.BAD_REQUEST);
+        }
+        bookService.saveBook(book);
+
+        return new ResponseEntity<>(Collections.singletonList("Book successfully updated"), HttpStatus.OK);
 
     }
+
 
 
     @GetMapping("/images")

@@ -11,6 +11,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
@@ -18,6 +20,7 @@ import pl.powiescdosukcesu.book.Book;
 import pl.powiescdosukcesu.book.BookShortInfoDTO;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @EntityScan("pl.powiescdosukcesu")
@@ -80,7 +83,8 @@ public class AppConfig {
                 ;
         return mapper;
 	}
-	
+
+
 	/*
 	 * @Bean public CacheManager cacheManager() { return new
 	 * ConcurrentMapCacheManager("files"); }

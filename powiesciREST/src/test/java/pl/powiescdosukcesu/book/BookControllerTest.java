@@ -1,84 +1,158 @@
 package pl.powiescdosukcesu.book;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.test.json.JacksonTester;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import pl.powiescdosukcesu.appuser.AppUser;
+import pl.powiescdosukcesu.appuser.AppUserService;
+import pl.powiescdosukcesu.security.SecurityConfig;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+
+@RunWith(SpringRunner.class)
+@WebMvcTest(BookController.class)
 public class BookControllerTest {
 
 
     private MockMvc mockMvc;
 
-    @Mock
-    private BookServiceImpl bookService;
+    @Autowired
+    private WebApplicationContext webApplicationContext;
 
-    @Mock
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private BookService bookService;
+
+    @MockBean
     private ModelMapper modelMapper;
 
-    @InjectMocks
-    private BookController bookController;
+    @MockBean
+    private AppUserService appUserService;
 
-    private JacksonTester<List<Book>> jsonBook;
+    @MockBean
+    private AuthenticationEntryPoint authenticationEntryPoint;
+
 
     @Before
-    public void setup() {
-        JacksonTester.initFields(this, new ObjectMapper());
-        this.mockMvc = MockMvcBuilders.standaloneSetup(bookController)
-                .setControllerAdvice(new BookRestControllerAdvice())
-                .build();
+    public void setup(){
 
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+
+                .apply(springSecurity())
+                .build();
     }
 
 
     @Test
-    public void shouldReturnBooks() throws Exception {
+    public void contextLoads(){
+
+    }
+
+    @Test
+    @WithMockUser(username = "notTheOwner",roles = {"NORMAL_USER"})
+    public void whenUserNotOwnerOfBookThenCantDeleteOrUpdateBook() throws Exception {
         // given
         Set<Genre> genres = new HashSet<>();
-        genres.add(new Genre("hi"));
-        given(bookService.getBooks())
-                .willReturn(Arrays.asList(new Book("book", "admin".getBytes(), genres, "file".getBytes()),
-                        new Book("book", "admin".getBytes(), genres, "file".getBytes())));
-
-        // when
-        MockHttpServletResponse response = mockMvc.perform(
-                get("/api/books")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andReturn().getResponse();
-
-        // then
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-
+        Book bookToDelete = new Book("book", "admin".getBytes(), genres, "file".getBytes());
+        bookToDelete.setUser(new AppUser("test", "test", null, null, "test@as.pl"));
+        this.mockMvc.perform(delete("/api/books").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(bookToDelete))).andExpect(status().isForbidden());
+        this.mockMvc.perform(put("/api/books").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(bookToDelete))).andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(value = "admin", roles = "NORMAL_USER")
-    public void whenUserDoesntOwnFileShouldReturnNotAuthorized(){
-
-        //
-
+    @WithMockUser(username = "owner",roles = {"NORMAL_USER"})
+    public void whenUserOwnerOfBookThenCanDeleteAndUpdateBook() throws Exception {
+        // given
+        Set<Genre> genres = new HashSet<>();
+        Book bookToDelete = new Book("book", "admin".getBytes(), genres, "file".getBytes());
+        bookToDelete.setUser(new AppUser("owner", "test", null, null, "test@as.pl"));
+        this.mockMvc.perform(delete("/api/books").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(bookToDelete))).andExpect(status().isOk());
+        this.mockMvc.perform(put("/api/books").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(bookToDelete))).andExpect(status().isOk());
     }
 
+    @Test
+    public void whenNoBooksFoundWithGivenKeywordThenShouldReturnNotFoundStatus() throws Exception {
+
+        //given
+        given(bookService.getBooksByKeyword("noMatch")).willThrow(BookNotFoundException.class);
+
+        //then
+        this.mockMvc.perform(get("/api/noMatch")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void whenBookNotValidThenSaveBookAndUpdateBookShouldReturnBadRequest() throws Exception {
+
+        // given
+        Set<Genre> genres = new HashSet<>();
+        //MIN BOOK TITLE SIZE =4
+        Book bookToSaveOrUpdate = new Book("b", "img".getBytes(), genres, "file".getBytes());
+        bookToSaveOrUpdate.setUser(new AppUser("owner", "test", null, null, "test@as.pl"));
+
+        //then
+        this.mockMvc.perform(post("/api/books").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(bookToSaveOrUpdate))).andExpect(status().isBadRequest());
+        //then
+        this.mockMvc.perform(put("/api/books").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(bookToSaveOrUpdate))).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void whenUserNotAuthenticatedThenSaveUpdateDeleteBookShouldReturn401() throws Exception{
+
+        Set<Genre> genres = new HashSet<>();
+
+        Book randomBookForNotAuthenticatedUser = new Book("bdfhdfjfj", "img".getBytes(), genres, "file".getBytes());
+        randomBookForNotAuthenticatedUser.setUser(new AppUser("owner", "test", null, null, "test@as.pl"));
+
+
+        this.mockMvc.perform(post("/api/books").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(randomBookForNotAuthenticatedUser))).andExpect(status().isUnauthorized());
+
+        this.mockMvc.perform(put("/api/books").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(randomBookForNotAuthenticatedUser))).andExpect(status().isUnauthorized());
+
+
+        this.mockMvc.perform(put("/api/books").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(randomBookForNotAuthenticatedUser))).andExpect(status().isUnauthorized());
+    }
 
 }

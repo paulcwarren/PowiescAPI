@@ -24,7 +24,9 @@ import pl.powiescdosukcesu.appuser.AppUserService;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true,
+							securedEnabled = true
+)
 @CrossOrigin
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
