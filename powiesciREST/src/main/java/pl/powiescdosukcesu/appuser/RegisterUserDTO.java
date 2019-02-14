@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pl.powiescdosukcesu.validation.annotations.NotUsed;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -19,8 +18,7 @@ public class RegisterUserDTO {
 
 
     @NotBlank(message = "*Pole jest wymagane")
-    @NotUsed
-    private String userName;
+    private String username;
 
     @NotBlank
     @Size(min = 8, message = "*Hasło jest za krótkie")

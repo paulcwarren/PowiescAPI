@@ -2,7 +2,6 @@
 package pl.powiescdosukcesu.appuser;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,10 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -47,12 +43,8 @@ public class AppUserServiceImpl implements AppUserService {
     public AppUser getUser(String username) {
 
         Optional<AppUser> opt = userRep.findByUsername(username);
-        if (opt.isPresent()) {
+        return opt.get();
 
-            return opt.get();
-        } else {
-            throw new AppUserNotFoundException();
-        }
     }
 
     @Override
@@ -82,17 +74,16 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    @Async
     public AppUser saveUser(RegisterUserDTO registerUser) {
 
         AppUser user = AppUser.builder()
-                .username(registerUser.getUserName())
+                .username(registerUser.getUsername())
                 .password(bCryptPasswordEncoder.encode(registerUser.getPassword()))
                 .email(registerUser.getEmail())
                 .firstName(registerUser.getFirstName())
                 .lastName(registerUser.getLastName())
                 .gender(registerUser.getGender())
-                .image(new Base64().decode(registerUser.getImage()))
+                .image(Base64.getDecoder().decode(registerUser.getImage()))
                 .roles(Collections.singletonList(roleRep.findRoleByName("ROLE_NORMAL_USER")))
                 .build();
         userRep.save(user);

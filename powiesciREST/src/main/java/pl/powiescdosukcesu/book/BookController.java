@@ -9,17 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/books")
@@ -37,8 +35,28 @@ public class BookController {
     @GetMapping
     public List<BookShortInfoDTO> getBooks() {
 
-        return bookService.getBooks().stream()
+        List<BookShortInfoDTO> books = bookService.getBooks().stream()
                 .map(file -> modelMapper.map(file, BookShortInfoDTO.class)).collect(Collectors.toList());
+
+
+        return books;
+
+    }
+
+    @GetMapping(value="{id}/image",produces = MediaType.IMAGE_JPEG_VALUE)
+    public byte[] getBookImage(@PathVariable int id){
+
+        return bookService.getBookById(id).getBackgroundImage();
+
+    }
+
+    @GetMapping("/title/{bookTitle}")
+    public ResponseEntity<FullBookInfoDTO> getBookByTitle(@PathVariable String bookTitle) {
+
+        Book book = bookService.getBookByTitle(bookTitle);
+
+        return ResponseEntity.ok()
+                .body(modelMapper.map(book,FullBookInfoDTO.class));
     }
 
     @GetMapping("/id/{fileId}")
@@ -94,7 +112,7 @@ public class BookController {
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<String>> saveBook(@Valid @RequestBody Book book,Principal principal,Errors errors){
+    public ResponseEntity<List<String>> saveBook(@Valid @RequestBody Book book, Principal principal, Errors errors) {
 
         List<String> errorMessages = new ArrayList<>();
         errors.getAllErrors().forEach(e -> errorMessages.add(e.getDefaultMessage()));
@@ -108,7 +126,6 @@ public class BookController {
         return new ResponseEntity<>(Collections.singletonList("Book successfully updated"), HttpStatus.OK);
 
     }
-
 
 
     @GetMapping("/images")

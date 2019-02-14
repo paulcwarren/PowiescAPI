@@ -1,7 +1,8 @@
 package pl.powiescdosukcesu.book;
 
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -9,8 +10,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+
 @Repository
-public interface BookRepository extends CrudRepository<Book, Long>, BookRepositoryCustom {
+public interface BookRepository extends JpaRepository<Book, Long>, BookRepositoryCustom {
 
 	@Query("SELECT book FROM Book book JOIN book.user user "
 			+ "WHERE book.title LIKE %:keyword% OR user.username LIKE %:keyword%" )
@@ -25,9 +27,10 @@ public interface BookRepository extends CrudRepository<Book, Long>, BookReposito
 			nativeQuery=true)
 	List<byte[]> loadImages();
 
+
+	@EntityGraph(attributePaths = {"user","genres"})
 	List<Book> findAll();
 
     Optional<Book> findOneByTitle(String title);
-
-
+    
 }

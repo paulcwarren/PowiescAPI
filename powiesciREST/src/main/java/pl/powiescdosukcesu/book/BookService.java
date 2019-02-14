@@ -21,4 +21,6 @@ public interface BookService {
 	void deleteBookById(long id);
 	Book addComment(Book book,String comment);
 	Book saveBook(Book book);
+
+    Book getBookByTitle(String bookTitle);
 }

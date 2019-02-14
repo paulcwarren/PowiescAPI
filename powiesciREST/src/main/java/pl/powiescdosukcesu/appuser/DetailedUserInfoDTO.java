@@ -1,7 +1,6 @@
 package pl.powiescdosukcesu.appuser;
 
 import lombok.Data;
-import pl.powiescdosukcesu.book.BookShortInfoDTO;
 
 @Data
 public class DetailedUserInfoDTO {
@@ -11,6 +10,6 @@ public class DetailedUserInfoDTO {
 		private String firstName;
 		private String lastName;
 		private String gender;
-		private BookShortInfoDTO[] files;
+
 		
 }

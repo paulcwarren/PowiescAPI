@@ -1,7 +1,7 @@
 package pl.powiescdosukcesu.book;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,7 +12,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +25,14 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @ToString(exclude = {"comments","genres"})
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@NamedEntityGraph(
+        name="book-load",
+        attributeNodes = {
+                @NamedAttributeNode("genres"),
+                @NamedAttributeNode("user")
+        }
+)
 public class Book implements Serializable {
 
 	/**
@@ -34,7 +41,7 @@ public class Book implements Serializable {
 	private static final long serialVersionUID = 6235830792388288474L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column
 	private long id;
 
@@ -54,7 +61,7 @@ public class Book implements Serializable {
 	@Column(name = "rating")
 	private double rating;
 
-	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@ManyToMany( cascade = CascadeType.ALL,fetch = FetchType.LAZY)
 	@JoinTable(name = "files_genres",
 				joinColumns = @JoinColumn(name = "file_id"),
 				inverseJoinColumns = @JoinColumn(name = "genre_id"))
@@ -67,7 +74,7 @@ public class Book implements Serializable {
 	@NotNull
 	private byte[] file;
 
-	@ManyToOne(fetch = FetchType.EAGER,
+	@ManyToOne(fetch = FetchType.LAZY,
 			   cascade = {
 					   CascadeType.DETACH,
 					   CascadeType.MERGE,
@@ -94,14 +101,8 @@ public class Book implements Serializable {
 		this.comments.add(comment);
 	}
 
-	public String getBase64Image() {
-		Base64 base = new Base64();
-		backgroundImage = base.encode(backgroundImage);
-
-		return new String(backgroundImage, StandardCharsets.UTF_8);
-
-
+	public String getContent(){
+		return new String(this.getFile());
 	}
-
 
 }

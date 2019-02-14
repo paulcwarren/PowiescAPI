@@ -31,13 +31,10 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> getBooks() {
 
-        List<Book> files = bookRep.findAll();
-        if(files.isEmpty()) {
+        List<Book> books =bookRep.findAll();
+        if(books.isEmpty())
             throw new BookNotFoundException();
-        }
-
-        return files;
-
+        return books;
     }
 
     @Override
@@ -86,6 +83,13 @@ public class BookServiceImpl implements BookService {
         } else {
             throw new NullPointerException("Book cannot be null");
         }
+    }
+
+    @Override
+    //TODO
+    public Book getBookByTitle(String bookTitle) {
+
+        return bookRep.findOneByTitle(bookTitle).get();
     }
 
     @Override

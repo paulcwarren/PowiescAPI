@@ -1,7 +1,9 @@
 package pl.powiescdosukcesu.appuser;
 
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,8 @@ public class AppUserRestController {
 
 	private final AppUserService appUserService;
 
+	private final ModelMapper modelMapper;
+
 	@GetMapping("{name}")
 	public ResponseEntity<AppUser> getUser(@PathVariable String name) {
 
@@ -22,7 +26,7 @@ public class AppUserRestController {
 	}
 
 	//TODO
-	@PostMapping
+	@PostMapping("/register")
 	public ResponseEntity<String> saveUser(@Valid @RequestBody RegisterUserDTO user, BindingResult bindingResult) {
 
 		if(bindingResult.hasErrors())
@@ -30,6 +34,14 @@ public class AppUserRestController {
 		appUserService.saveUser(user);
 		return new ResponseEntity<>("Successfull registration",HttpStatus.OK);
 	}
+
+	@GetMapping(value = "/{username}/image",produces = MediaType.IMAGE_JPEG_VALUE)
+	public byte[] getUserImage(@PathVariable String username){
+
+		return appUserService.getUser(username).getImage();
+	}
+
+
 
 
 }

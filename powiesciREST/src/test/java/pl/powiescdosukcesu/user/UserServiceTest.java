@@ -33,7 +33,7 @@ public class UserServiceTest {
         //given
         given(roleRepository.findRoleByName("ROLE_NORMAL_USER")).willReturn(new Role("NORMAL_USER"));
         RegisterUserDTO registerUserDTO = RegisterUserDTO.builder()
-                                            .userName("barry")
+                                            .username("barry")
                                             .password("sally12345!")
                                             .matchingPassword("sally12345!")
                                             .email("Sally@gmail.com")

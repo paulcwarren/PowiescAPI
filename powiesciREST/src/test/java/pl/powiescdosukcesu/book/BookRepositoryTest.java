@@ -59,6 +59,12 @@ public class BookRepositoryTest {
 		bookRep.save(book2);
 		
 	}
+
+	@Test
+	public void shouldntCauseNPlus1Problem(){
+
+		bookRep.findAll();
+	}
 	
 	@Test
 	public void whenSearchingForBookWithParamKeywordShouldReturnListOfOneElement() {
