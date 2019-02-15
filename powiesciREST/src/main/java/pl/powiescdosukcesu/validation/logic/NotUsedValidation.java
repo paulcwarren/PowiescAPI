@@ -1,8 +1,7 @@
 package pl.powiescdosukcesu.validation.logic;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.powiescdosukcesu.appuser.AppUser;
-import pl.powiescdosukcesu.appuser.AppUserService;
+import pl.powiescdosukcesu.appuser.AppUserRepository;
 import pl.powiescdosukcesu.validation.annotations.NotUsed;
 
 import javax.validation.ConstraintValidator;
@@ -11,7 +10,7 @@ import javax.validation.ConstraintValidatorContext;
 public class NotUsedValidation implements ConstraintValidator<NotUsed,String> {
 
 	@Autowired
-	private AppUserService appUserService;
+	private AppUserRepository appUserRepository;
 	
 	@Override
 	public void initialize(NotUsed constraintAnnotation) {
@@ -20,11 +19,11 @@ public class NotUsedValidation implements ConstraintValidator<NotUsed,String> {
 
 	
 	@Override
-	public boolean isValid(String value, ConstraintValidatorContext context) {
-		
-		AppUser user = appUserService.getUser(value);
+	public boolean isValid(String username, ConstraintValidatorContext context) {
 
-        return user == null;
+		if(username==null || username.equals(""))
+			return false;
+		return !appUserRepository.findByUsername(username).isPresent();
 
     }
 

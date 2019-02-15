@@ -1,9 +1,10 @@
 
 package pl.powiescdosukcesu.appuser;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -27,6 +28,8 @@ public class AppUserServiceImpl implements AppUserService {
     private final RoleRepository roleRep;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private final ModelMapper modelMapper;
 
     @Override
     public AppUser getUser(long id) {
@@ -60,7 +63,7 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
 
         Optional<AppUser> opt = userRep.findByUsername(username);
 
@@ -74,18 +77,11 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    public AppUser saveUser(RegisterUserDTO registerUser) {
+    public AppUser saveUser(@NonNull RegisterUserDTO registerUserDTO) {
 
-        AppUser user = AppUser.builder()
-                .username(registerUser.getUsername())
-                .password(bCryptPasswordEncoder.encode(registerUser.getPassword()))
-                .email(registerUser.getEmail())
-                .firstName(registerUser.getFirstName())
-                .lastName(registerUser.getLastName())
-                .gender(registerUser.getGender())
-                .image(Base64.getDecoder().decode(registerUser.getImage()))
-                .roles(Collections.singletonList(roleRep.findRoleByName("ROLE_NORMAL_USER")))
-                .build();
+        AppUser user = modelMapper.map(registerUserDTO, AppUser.class);
+        user.setImage(Base64.getDecoder().decode(registerUserDTO.getImage()));
+        user.setRoles(Collections.singletonList(roleRep.findRoleByName("ROLE_NORMAL_USER")));
         userRep.save(user);
 
         return user;
@@ -93,20 +89,16 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    @Async
-    public void deleteUser(AppUser user) {
+    public void deleteUser(@NonNull AppUser user) {
 
-        if (user == null) {
-            throw new NullPointerException("User cannot be null");
-        } else {
-            userRep.delete(user);
-        }
-
+        userRep.delete(user);
 
     }
 
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+    protected Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toList());
     }
 
 }

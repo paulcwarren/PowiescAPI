@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import pl.powiescdosukcesu.appuser.*;
 
@@ -23,6 +24,9 @@ public class UserServiceTest {
 
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Mock
+    private ModelMapper modelMapper;
 
     @InjectMocks
     private AppUserServiceImpl appUserService;

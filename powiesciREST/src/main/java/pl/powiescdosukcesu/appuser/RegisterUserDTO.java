@@ -4,12 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.powiescdosukcesu.validation.annotations.NotUsed;
+import pl.powiescdosukcesu.validation.annotations.PasswordMatch;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-//@PasswordMatch
+@PasswordMatch
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,6 +20,7 @@ public class RegisterUserDTO {
 
 
     @NotBlank(message = "*Pole jest wymagane")
+    @NotUsed(message = "*Nazwa użytkownika jest zajęta")
     private String username;
 
     @NotBlank

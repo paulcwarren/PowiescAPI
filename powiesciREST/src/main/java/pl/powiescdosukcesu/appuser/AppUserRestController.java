@@ -9,6 +9,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -27,12 +30,20 @@ public class AppUserRestController {
 
 	//TODO
 	@PostMapping("/register")
-	public ResponseEntity<String> saveUser(@Valid @RequestBody RegisterUserDTO user, BindingResult bindingResult) {
+	public ResponseEntity<List<String>> saveUser(@Valid @RequestBody RegisterUserDTO user,
+												 BindingResult bindingResult) {
 
-		if(bindingResult.hasErrors())
-			return new ResponseEntity<>("Something went wrong",HttpStatus.BAD_REQUEST);
+		if(bindingResult.hasErrors()) {
+
+			List<String> errorMessages = bindingResult.getAllErrors()
+					.stream()
+					.map(error->error.getDefaultMessage())
+					.collect(Collectors.toList());
+			return new ResponseEntity<>(errorMessages, HttpStatus.BAD_REQUEST);
+		}
+
 		appUserService.saveUser(user);
-		return new ResponseEntity<>("Successfull registration",HttpStatus.OK);
+		return new ResponseEntity<>(Collections.singletonList("Udana rejestracja"),HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/{username}/image",produces = MediaType.IMAGE_JPEG_VALUE)
