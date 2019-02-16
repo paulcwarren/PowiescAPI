@@ -48,9 +48,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.cors().and().csrf().disable().authorizeRequests()
 				
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.antMatchers(HttpMethod.PUT, "/books/*").authenticated()
-				.antMatchers(HttpMethod.DELETE, "/books/*").authenticated()
-				.antMatchers(HttpMethod.POST, "/books/*").authenticated()
+				.antMatchers(HttpMethod.PUT, "/api/books/*").authenticated()
+				.antMatchers(HttpMethod.DELETE, "/api/books/*").authenticated()
+				.antMatchers(HttpMethod.POST, "/api/books/*").authenticated()
+				.antMatchers(HttpMethod.POST,"/api/users/*").permitAll()
 				.and()
 				.addFilter(new JWTAuthenticationFilter(authenticationManager()))
 				.addFilter(new JWTAuthorizationFilter(authenticationManager()))

@@ -80,7 +80,9 @@ public class AppUserServiceImpl implements AppUserService {
     public AppUser saveUser(@NonNull RegisterUserDTO registerUserDTO) {
 
         AppUser user = modelMapper.map(registerUserDTO, AppUser.class);
-        user.setImage(Base64.getDecoder().decode(registerUserDTO.getImage()));
+
+        if(registerUserDTO.getImage()!=null)
+            user.setImage(Base64.getDecoder().decode(registerUserDTO.getImage()));
         user.setRoles(Collections.singletonList(roleRep.findRoleByName("ROLE_NORMAL_USER")));
         userRep.save(user);
 

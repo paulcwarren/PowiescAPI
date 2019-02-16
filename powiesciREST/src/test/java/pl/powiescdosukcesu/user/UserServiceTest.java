@@ -9,7 +9,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import pl.powiescdosukcesu.appuser.*;
 
+import java.util.Base64;
+import java.util.Random;
+
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyByte;
 import static org.mockito.BDDMockito.given;
 
 
@@ -32,10 +37,17 @@ public class UserServiceTest {
     private AppUserServiceImpl appUserService;
 
 
+    //TODO
     @Test
     public void shouldCreateAndSaveUserWithBcryptedPasswordAndRolesGive(){
+
         //given
         given(roleRepository.findRoleByName("ROLE_NORMAL_USER")).willReturn(new Role("NORMAL_USER"));
+        byte[] r = new byte[256];
+        Random random = new Random();
+        random.nextBytes(r);
+        String image = Base64.getEncoder().encodeToString(r);
+        System.out.println(image);
         RegisterUserDTO registerUserDTO = RegisterUserDTO.builder()
                                             .username("barry")
                                             .password("sally12345!")
@@ -44,7 +56,7 @@ public class UserServiceTest {
                                             .firstName("Anthony")
                                             .lastName("Captain")
                                             .gender("Mezczyzna")
-                                            .image("image")
+                                            .image(image)
                                             .build();
 
         assertThat(appUserService.saveUser(registerUserDTO).getRoles())

@@ -112,15 +112,8 @@ public class BookController {
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<String>> saveBook(@Valid @RequestBody Book book, Principal principal, Errors errors) {
+    public ResponseEntity<List<String>> saveBook(@Valid @RequestBody Book book) {
 
-        List<String> errorMessages = new ArrayList<>();
-        errors.getAllErrors().forEach(e -> errorMessages.add(e.getDefaultMessage()));
-
-        if (errors.hasErrors()) {
-            errorMessages.forEach(log::info);
-            return new ResponseEntity<>(errorMessages, HttpStatus.BAD_REQUEST);
-        }
         bookService.saveBook(book);
 
         return new ResponseEntity<>(Collections.singletonList("Book successfully updated"), HttpStatus.OK);

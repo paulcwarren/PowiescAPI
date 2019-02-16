@@ -68,44 +68,53 @@ public class BookControllerTest {
 
 
     @Before
-    public void setup(){
+    public void setup() {
 
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-
                 .apply(springSecurity())
                 .build();
     }
 
 
     @Test
-    public void contextLoads(){
+    public void contextLoads() {
 
     }
 
     @Test
-    @WithMockUser(username = "notTheOwner",roles = {"NORMAL_USER"})
+    @WithMockUser(username = "notTheOwner", roles = {"NORMAL_USER"})
     public void whenUserNotOwnerOfBookThenCantDeleteOrUpdateBook() throws Exception {
+
         // given
         Set<Genre> genres = new HashSet<>();
         Book bookToDelete = new Book("book", "admin".getBytes(), genres, "file".getBytes());
         bookToDelete.setUser(new AppUser("test", "test", null, null, "test@as.pl"));
-        this.mockMvc.perform(delete("/api/books").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(bookToDelete))).andExpect(status().isForbidden());
-        this.mockMvc.perform(put("/api/books").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(bookToDelete))).andExpect(status().isForbidden());
+        this.mockMvc.perform(delete("/api/books")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(bookToDelete)))
+                .andExpect(status().isForbidden());
+
+        this.mockMvc.perform(put("/api/books")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(bookToDelete)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "owner",roles = {"NORMAL_USER"})
+    @WithMockUser(username = "owner", roles = {"NORMAL_USER"})
     public void whenUserOwnerOfBookThenCanDeleteAndUpdateBook() throws Exception {
         // given
         Set<Genre> genres = new HashSet<>();
         Book bookToDelete = new Book("book", "admin".getBytes(), genres, "file".getBytes());
         bookToDelete.setUser(new AppUser("owner", "test", null, null, "test@as.pl"));
-        this.mockMvc.perform(delete("/api/books").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(bookToDelete))).andExpect(status().isOk());
-        this.mockMvc.perform(put("/api/books").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(bookToDelete))).andExpect(status().isOk());
+        this.mockMvc.perform(delete("/api/books")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(bookToDelete)))
+                .andExpect(status().isOk());
+        this.mockMvc.perform(put("/api/books")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(bookToDelete)))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -128,15 +137,19 @@ public class BookControllerTest {
         bookToSaveOrUpdate.setUser(new AppUser("owner", "test", null, null, "test@as.pl"));
 
         //then
-        this.mockMvc.perform(post("/api/books").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(bookToSaveOrUpdate))).andExpect(status().isBadRequest());
+        this.mockMvc.perform(post("/api/books")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(bookToSaveOrUpdate)))
+                .andExpect(status().isBadRequest());
         //then
-        this.mockMvc.perform(put("/api/books").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(bookToSaveOrUpdate))).andExpect(status().isBadRequest());
+        this.mockMvc.perform(put("/api/books")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(bookToSaveOrUpdate)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void whenUserNotAuthenticatedThenSaveUpdateDeleteBookShouldReturn401() throws Exception{
+    public void whenUserNotAuthenticatedThenSaveUpdateDeleteBookShouldReturn401() throws Exception {
 
         Set<Genre> genres = new HashSet<>();
 
@@ -144,15 +157,21 @@ public class BookControllerTest {
         randomBookForNotAuthenticatedUser.setUser(new AppUser("owner", "test", null, null, "test@as.pl"));
 
 
-        this.mockMvc.perform(post("/api/books").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(randomBookForNotAuthenticatedUser))).andExpect(status().isUnauthorized());
+        this.mockMvc.perform(post("/api/books")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(randomBookForNotAuthenticatedUser)))
+                .andExpect(status().isUnauthorized());
 
-        this.mockMvc.perform(put("/api/books").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(randomBookForNotAuthenticatedUser))).andExpect(status().isUnauthorized());
+        this.mockMvc.perform(put("/api/books")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(randomBookForNotAuthenticatedUser)))
+                .andExpect(status().isUnauthorized());
 
 
-        this.mockMvc.perform(put("/api/books").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(randomBookForNotAuthenticatedUser))).andExpect(status().isUnauthorized());
+        this.mockMvc.perform(put("/api/books")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(randomBookForNotAuthenticatedUser)))
+                .andExpect(status().isUnauthorized());
     }
 
 }

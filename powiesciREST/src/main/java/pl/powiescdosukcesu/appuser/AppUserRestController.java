@@ -20,27 +20,14 @@ public class AppUserRestController {
 
 	private final AppUserService appUserService;
 
-	private final ModelMapper modelMapper;
-
 	@GetMapping("{name}")
 	public ResponseEntity<AppUser> getUser(@PathVariable String name) {
 
 		return new ResponseEntity<>(appUserService.getUser(name),HttpStatus.OK);
 	}
 
-	//TODO
 	@PostMapping("/register")
-	public ResponseEntity<List<String>> saveUser(@Valid @RequestBody RegisterUserDTO user,
-												 BindingResult bindingResult) {
-
-		if(bindingResult.hasErrors()) {
-
-			List<String> errorMessages = bindingResult.getAllErrors()
-					.stream()
-					.map(error->error.getDefaultMessage())
-					.collect(Collectors.toList());
-			return new ResponseEntity<>(errorMessages, HttpStatus.BAD_REQUEST);
-		}
+	public ResponseEntity<List<String>> saveUser(@Valid @RequestBody RegisterUserDTO user) {
 
 		appUserService.saveUser(user);
 		return new ResponseEntity<>(Collections.singletonList("Udana rejestracja"),HttpStatus.OK);
