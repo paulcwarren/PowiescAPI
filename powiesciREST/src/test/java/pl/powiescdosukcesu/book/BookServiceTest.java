@@ -35,7 +35,7 @@ public class BookServiceTest {
 	@InjectMocks
 	private BookServiceImpl bookService;
 
-	private ArrayList<Book> books = new ArrayList<>();
+    private final ArrayList<Book> books = new ArrayList<>();
     private Book book;
 
 	@Before

@@ -12,9 +12,7 @@ import pl.powiescdosukcesu.appuser.*;
 import java.util.Base64;
 import java.util.Random;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyByte;
 import static org.mockito.BDDMockito.given;
 
 

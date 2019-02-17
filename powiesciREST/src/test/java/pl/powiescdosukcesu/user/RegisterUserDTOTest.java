@@ -13,12 +13,15 @@ import pl.powiescdosukcesu.appuser.RegisterUserDTO;
 import pl.powiescdosukcesu.validation.annotations.NotUsed;
 import pl.powiescdosukcesu.validation.logic.NotUsedValidation;
 
-import javax.validation.*;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RegisterUserDTOTest {
@@ -29,7 +32,7 @@ public class RegisterUserDTOTest {
 
     private Validator validator;
 
-    ConstraintAnnotationDescriptor.Builder<NotUsed> descriptorBuilder =
+    final ConstraintAnnotationDescriptor.Builder<NotUsed> descriptorBuilder =
             new ConstraintAnnotationDescriptor.Builder<>(NotUsed.class);
 
     @InjectMocks
@@ -58,7 +61,7 @@ public class RegisterUserDTOTest {
                 new RegisterUserDTO("", "", "", "", "", "", "", "");
         Set<ConstraintViolation<RegisterUserDTO>> violations = validator.validate(registerUserDTO);
 
-        assertThat(violations.stream().map(val -> val.getMessage())).contains("*Pole jest wymagane");
+        assertThat(violations.stream().map(ConstraintViolation::getMessage)).contains("*Pole jest wymagane");
     }
 
     @Test
@@ -83,7 +86,7 @@ public class RegisterUserDTOTest {
 
         Set<ConstraintViolation<RegisterUserDTO>> violations = validator.validate(registerUserDTO);
 
-        assertThat(violations.stream().map(val -> val.getMessage())).contains("*Niepoprawny adres E-Mail");
+        assertThat(violations.stream().map(ConstraintViolation::getMessage)).contains("*Niepoprawny adres E-Mail");
     }
 
     @Test
@@ -97,7 +100,7 @@ public class RegisterUserDTOTest {
 
         Set<ConstraintViolation<RegisterUserDTO>> violations = validator.validate(registerUserDTO);
 
-        assertThat(violations.stream().map(val -> val.getMessage())).contains("Hasła się nie zgadzają");
+        assertThat(violations.stream().map(ConstraintViolation::getMessage)).contains("Hasła się nie zgadzają");
     }
 
 }

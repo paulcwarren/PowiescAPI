@@ -35,11 +35,10 @@ public class BookController {
     @GetMapping
     public List<BookShortInfoDTO> getBooks() {
 
-        List<BookShortInfoDTO> books = bookService.getBooks().stream()
-                .map(file -> modelMapper.map(file, BookShortInfoDTO.class)).collect(Collectors.toList());
 
-
-        return books;
+        return bookService.getBooks().stream()
+                .map(file -> modelMapper.map(file, BookShortInfoDTO.class))
+                .collect(Collectors.toList());
 
     }
 
