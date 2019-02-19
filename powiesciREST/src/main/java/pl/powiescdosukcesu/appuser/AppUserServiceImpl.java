@@ -5,17 +5,17 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.powiescdosukcesu.security.UserPrincipal;
 
 import javax.transaction.Transactional;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Transactional
 @DependsOn("securityConfig")
@@ -65,15 +65,10 @@ public class AppUserServiceImpl implements AppUserService {
     @Override
     public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
 
-        Optional<AppUser> opt = userRep.findByUsername(username);
+        AppUser user = userRep.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password."));
 
-        if (opt.isPresent()) {
-            AppUser user = opt.get();
-            return new User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
-
-        } else {
-            throw new UsernameNotFoundException("Invalid username or password.");
-        }
+        return UserPrincipal.create(user);
     }
 
     @Override
@@ -81,8 +76,9 @@ public class AppUserServiceImpl implements AppUserService {
 
         AppUser user = modelMapper.map(registerUserDTO, AppUser.class);
 
-        if(registerUserDTO.getImage()!=null)
+        if (registerUserDTO.getImage() != null)
             user.setImage(Base64.getDecoder().decode(registerUserDTO.getImage()));
+        user.setPassword(bCryptPasswordEncoder.encode(registerUserDTO.getPassword()));
         user.setRoles(Collections.singletonList(roleRep.findRoleByName("ROLE_NORMAL_USER")));
         userRep.save(user);
 
@@ -97,10 +93,5 @@ public class AppUserServiceImpl implements AppUserService {
 
     }
 
-    protected Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toList());
-    }
 
 }

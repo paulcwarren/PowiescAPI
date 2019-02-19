@@ -1,13 +1,16 @@
 package pl.powiescdosukcesu.book;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.binary.Base64;
+import org.modelmapper.ModelMapper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pl.powiescdosukcesu.appuser.AppUser;
 import pl.powiescdosukcesu.appuser.AppUserService;
+import pl.powiescdosukcesu.security.UserPrincipal;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -27,6 +30,8 @@ public class BookServiceImpl implements BookService {
     private final AppUserService appUserService;
 
     private final GenreRepository genreRep;
+
+    private final ModelMapper modelMapper;
 
     @Override
     public List<Book> getBooks() {
@@ -75,21 +80,32 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book saveBook(Book book) {
+    public Book saveBook(@NonNull BookCreationDTO bookDTO, UserPrincipal userPrincipal) {
 
-        if (book != null) {
-            bookRep.save(book);
-            return book;
-        } else {
-            throw new NullPointerException("Book cannot be null");
-        }
+        AppUser user = appUserService.getUser(userPrincipal.getId());
+        Set<Genre> genres = bookDTO.getGenres().stream().map(g -> genreRep.findGenreByName(g)).collect(Collectors.toSet());
+        Book book = Book.builder()
+                .title(bookDTO.getTitle())
+                .file(bookDTO.getFile().getBytes())
+                .genres(genres)
+                .user(user)
+                .build();
+
+        bookRep.save(book);
+
+        return book;
+
     }
 
     @Override
-    //TODO
-    public Book getBookByTitle(String bookTitle) {
+    public FullBookInfoDTO getBookByTitle(@NonNull String bookTitle) {
 
-        return bookRep.findOneByTitle(bookTitle).get();
+        Book book = bookRep.findOneByTitle(bookTitle).orElseThrow(() -> new BookNotFoundException());
+
+        FullBookInfoDTO dto = modelMapper.map(book, FullBookInfoDTO.class);
+        dto.setContent(new String(book.getFile()));
+
+        return dto;
     }
 
     @Override

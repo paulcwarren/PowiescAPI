@@ -1,6 +1,7 @@
 package pl.powiescdosukcesu.book;
 
 import org.springframework.web.multipart.MultipartFile;
+import pl.powiescdosukcesu.security.UserPrincipal;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -20,7 +21,8 @@ public interface BookService {
 	List<String> loadImages();
 	void deleteBookById(long id);
 	Book addComment(Book book,String comment);
-	Book saveBook(Book book);
 
-    Book getBookByTitle(String bookTitle);
+    Book saveBook(BookCreationDTO book, UserPrincipal user);
+
+    FullBookInfoDTO getBookByTitle(String bookTitle);
 }

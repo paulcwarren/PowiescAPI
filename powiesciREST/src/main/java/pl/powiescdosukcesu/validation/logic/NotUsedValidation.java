@@ -31,7 +31,7 @@ public class NotUsedValidation implements ConstraintValidator<NotUsed,String> {
 		if(username==null || username.equals(""))
 			return false;
 
-		return !(appUserRepository.findByUsername(username).isPresent());
+        return !appUserRepository.existsByUsername(username);
 
     }
 

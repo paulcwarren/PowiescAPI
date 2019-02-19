@@ -106,12 +106,12 @@ public class BookServiceTest {
 	@Test(expected = NullPointerException.class)
 	public void whenPassingNullToSaveBookShouldThrowNullPointerException(){
 
-		bookService.saveBook(null);
+        bookService.saveBook(null, null);
 	}
 
 	@Test
     public void shouldReturnSavedBook(){
-	    assertThat(bookService.saveBook(book)).isEqualTo(book);
+        assertThat(bookService.saveBook(null, null)).isEqualTo(book);
     }
 
     @Test

@@ -17,8 +17,7 @@ public final class RestAuthenticationEntryPoint
         final HttpServletRequest request, 
         final HttpServletResponse response, 
         final AuthenticationException authException) throws IOException {
-    
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, 
-          "You are not logged in");
+
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
     }
 }

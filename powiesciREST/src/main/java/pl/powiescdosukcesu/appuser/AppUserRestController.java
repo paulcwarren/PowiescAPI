@@ -4,7 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import pl.powiescdosukcesu.security.JwtAuthenticationResponse;
+import pl.powiescdosukcesu.security.JwtTokenProvider;
+import pl.powiescdosukcesu.security.UserPrincipal;
 
 import javax.validation.Valid;
 import java.util.Collections;
@@ -16,6 +24,10 @@ import java.util.List;
 public class AppUserRestController {
 
 	private final AppUserService appUserService;
+
+    private final JwtTokenProvider tokenProvider;
+
+    private final AuthenticationManager authenticationManager;
 
 	@GetMapping("{name}")
 	public ResponseEntity<AppUser> getUser(@PathVariable String name) {
@@ -36,7 +48,35 @@ public class AppUserRestController {
 		return appUserService.getUser(username).getImage();
 	}
 
+    @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginDTO loginDTO) {
 
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginDTO.getUsername(),
+                        loginDTO.getPassword()
+                )
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = tokenProvider.generateToken(authentication);
+        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+    }
+
+    @GetMapping("/user/me")
+    public ResponseEntity<DetailedUserInfoDTO> getMyProfile(@AuthenticationPrincipal UserPrincipal currentUser) {
+
+        DetailedUserInfoDTO dto = new DetailedUserInfoDTO(
+                currentUser.getUsername(),
+                currentUser.getEmail(),
+                currentUser.getFirstname(),
+                currentUser.getLastname(),
+                currentUser.getGender());
+
+        return ResponseEntity.ok(dto);
+
+    }
 
 
 }

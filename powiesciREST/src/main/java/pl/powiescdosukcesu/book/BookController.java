@@ -7,8 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import pl.powiescdosukcesu.security.UserPrincipal;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -52,10 +54,8 @@ public class BookController {
     @GetMapping("/title/{bookTitle}")
     public ResponseEntity<FullBookInfoDTO> getBookByTitle(@PathVariable String bookTitle) {
 
-        Book book = bookService.getBookByTitle(bookTitle);
-
         return ResponseEntity.ok()
-                .body(modelMapper.map(book,FullBookInfoDTO.class));
+                .body(bookService.getBookByTitle(bookTitle));
     }
 
     @GetMapping("/id/{fileId}")
@@ -111,9 +111,9 @@ public class BookController {
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<String>> saveBook(@Valid @RequestBody Book book) {
+    public ResponseEntity<List<String>> saveBook(@Valid @RequestBody BookCreationDTO book, @AuthenticationPrincipal UserPrincipal user) {
 
-        bookService.saveBook(book);
+        bookService.saveBook(book, user);
 
         return new ResponseEntity<>(Collections.singletonList("Book successfully updated"), HttpStatus.OK);
 

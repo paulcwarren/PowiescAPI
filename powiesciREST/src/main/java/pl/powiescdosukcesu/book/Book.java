@@ -41,7 +41,7 @@ public class Book implements Serializable {
 	private static final long serialVersionUID = 6235830792388288474L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column
 	private long id;
 
@@ -69,6 +69,9 @@ public class Book implements Serializable {
 
 	@OneToMany(mappedBy = "file", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Comment> comments;
+
+    @Column(name = "description")
+    private String description;
 
 	@Column(name = "file")
 	@NotNull

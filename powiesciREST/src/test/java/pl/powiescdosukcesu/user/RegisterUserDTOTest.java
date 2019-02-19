@@ -7,7 +7,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import pl.powiescdosukcesu.appuser.AppUser;
 import pl.powiescdosukcesu.appuser.AppUserRepository;
 import pl.powiescdosukcesu.appuser.RegisterUserDTO;
 import pl.powiescdosukcesu.validation.annotations.NotUsed;
@@ -17,7 +16,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,7 +65,7 @@ public class RegisterUserDTOTest {
     @Test
     public void anAlreadyInUseUsernameShouldFailValidation() {
 
-        given(appUserRepository.findByUsername("alreadyInUseUsername")).willReturn(Optional.of(new AppUser()));
+        given(appUserRepository.existsByUsername("alreadyInUseUsername")).willReturn(true);
         notUsedValidation.initialize(descriptorBuilder.build().getAnnotation());
 
         assertThat(notUsedValidation.isValid("alreadyInUseUsername", null)).isFalse();
