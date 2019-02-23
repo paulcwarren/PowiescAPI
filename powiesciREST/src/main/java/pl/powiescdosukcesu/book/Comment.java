@@ -1,5 +1,8 @@
 package pl.powiescdosukcesu.book;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -13,8 +16,11 @@ import java.time.LocalDateTime;
 @Table(name = "comments")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 @Data
-public class Comment implements Comparable<Comment> {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Comment {
 
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
@@ -28,13 +34,13 @@ public class Comment implements Comparable<Comment> {
 	@CreatedDate
 	private LocalDateTime creationDate;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id")
 	private AppUser user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "file_id")
-	private Book file;
+	private Book book;
 
 
 
@@ -44,16 +50,5 @@ public class Comment implements Comparable<Comment> {
 		this.user = user;
 	}
 
-	@Override
-	public int compareTo(Comment com) {
-
-		if (this.creationDate.isAfter(com.getCreationDate()))
-			return 1;
-		else if (this.creationDate.isBefore(com.getCreationDate()))
-			return -1;
-		else
-			return 0;
-
-	}
 
 }

@@ -67,7 +67,7 @@ public class Book implements Serializable {
 				inverseJoinColumns = @JoinColumn(name = "genre_id"))
 	private Set<Genre> genres;
 
-	@OneToMany(mappedBy = "file", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Comment> comments;
 
     @Column(name = "description")
@@ -100,7 +100,7 @@ public class Book implements Serializable {
 
 		if (this.comments == null)
 			comments = new ArrayList<>();
-		comment.setFile(this);
+        comment.setBook(this);
 		this.comments.add(comment);
 	}
 

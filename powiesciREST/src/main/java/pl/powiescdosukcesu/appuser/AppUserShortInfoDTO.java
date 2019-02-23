@@ -6,5 +6,4 @@ import lombok.Data;
 public class AppUserShortInfoDTO {
 
 	private String username;
-	private byte[] image;
 }

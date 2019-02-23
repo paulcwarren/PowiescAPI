@@ -3,6 +3,9 @@ package pl.powiescdosukcesu.book;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,12 +38,9 @@ public class BookController {
 
 
     @GetMapping
-    public List<BookShortInfoDTO> getBooks() {
+    public Page<BookShortInfoDTO> getBooks(@PageableDefault(value = 12) Pageable pageable) {
 
-
-        return bookService.getBooks().stream()
-                .map(file -> modelMapper.map(file, BookShortInfoDTO.class))
-                .collect(Collectors.toList());
+        return bookService.getBooks(pageable);
 
     }
 
@@ -119,11 +119,29 @@ public class BookController {
 
     }
 
+    @PostMapping("/comment")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> postComment(@RequestBody AddCommentDTO addCommentDTO, @AuthenticationPrincipal UserPrincipal user) {
+
+        System.out.println(addCommentDTO);
+        bookService.addComment(addCommentDTO, user.getUsername());
+        return ResponseEntity
+                .ok()
+                .body(new String("Sucess"));
+    }
+
 
     @GetMapping("/images")
     public List<String> loadImages() {
 
         return bookService.loadImages();
+    }
+
+
+    @GetMapping("/comments/{id}")
+    public ResponseEntity<List<CommentDTO>> getComments(@PathVariable long id) {
+        return ResponseEntity.ok()
+                .body(bookService.getBookById(id).getComments().stream().map(com -> modelMapper.map(com, CommentDTO.class)).collect(Collectors.toList()));
     }
 
 }

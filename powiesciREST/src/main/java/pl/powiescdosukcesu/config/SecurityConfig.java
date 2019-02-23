@@ -1,5 +1,5 @@
 
-package pl.powiescdosukcesu.security;
+package pl.powiescdosukcesu.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pl.powiescdosukcesu.appuser.AppUserService;
+import pl.powiescdosukcesu.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity

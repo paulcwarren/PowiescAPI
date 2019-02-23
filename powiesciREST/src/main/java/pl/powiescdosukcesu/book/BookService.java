@@ -1,26 +1,26 @@
 package pl.powiescdosukcesu.book;
 
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import pl.powiescdosukcesu.security.UserPrincipal;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
 
 public interface BookService {
 
-	void saveFile(MultipartFile file, String title, String[] genres, byte[] image, String username) throws IOException;
 	Book getBookById(long id);
 	void deleteBook(Book file);
 	List<Book> getBooksByKeyword(String keyword);
-	List<Book> getBooks();
+
+	Page<BookShortInfoDTO> getBooks(Pageable pageable);
 	List<Book> getBooksByGenres(String[] genres);
 	List<Book> getBooksByDate(LocalDate localDate);
 	Book updateBook(Book book);
 	List<String> loadImages();
-	void deleteBookById(long id);
-	Book addComment(Book book,String comment);
+
+	Book addComment(AddCommentDTO addCommentDTO, String username);
 
     Book saveBook(BookCreationDTO book, UserPrincipal user);
 

@@ -1,5 +1,7 @@
 package pl.powiescdosukcesu.book;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -29,7 +31,7 @@ public interface BookRepository extends JpaRepository<Book, Long>, BookRepositor
 
 
 	@EntityGraph(attributePaths = {"user","genres"})
-	List<Book> findAll();
+    Page<Book> findAll(Pageable pageable);
 
     Optional<Book> findOneByTitle(String title);
     

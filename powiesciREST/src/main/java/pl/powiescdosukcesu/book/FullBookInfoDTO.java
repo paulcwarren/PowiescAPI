@@ -11,9 +11,9 @@ public class FullBookInfoDTO {
 
     public long id;
     public String title;
-    public String username;
     public List<String> genres;
     public LocalDate createdDate;
     public DetailedUserInfoDTO user;
     public String content;
+
 }
