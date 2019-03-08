@@ -17,8 +17,8 @@ import java.util.Optional;
 public interface BookRepository extends JpaRepository<Book, Long>, BookRepositoryCustom {
 
 	@Query("SELECT book FROM Book book JOIN book.user user "
-			+ "WHERE book.title LIKE %:keyword% OR user.username LIKE %:keyword%" )
-	List<Book> findFilesByKeyword(@Param("keyword") String keyword);
+            + "WHERE book.title LIKE %:keyword% OR book.description LIKE %:keyword%  OR user.username LIKE %:keyword%")
+    Page<Book> findFilesByKeyword(Pageable pageable, @Param("keyword") String keyword);
 
 	List<Book> findByCreatedDate(LocalDate date);
 
@@ -29,6 +29,9 @@ public interface BookRepository extends JpaRepository<Book, Long>, BookRepositor
 			nativeQuery=true)
 	List<byte[]> loadImages();
 
+
+    @Query(value = "INSERT INTO files_votes(name) values (?1)", nativeQuery = true)
+    void addRating(double rating);
 
 	@EntityGraph(attributePaths = {"user","genres"})
     Page<Book> findAll(Pageable pageable);

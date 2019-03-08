@@ -19,7 +19,8 @@ public class NotUsedValidation implements ConstraintValidator<NotUsed,String> {
 	public NotUsedValidation(AppUserRepository appUserRepository){
 		this.appUserRepository=appUserRepository;
 	}
-	@Override
+
+    @Override
 	public void initialize(NotUsed constraintAnnotation) {
 
 	}

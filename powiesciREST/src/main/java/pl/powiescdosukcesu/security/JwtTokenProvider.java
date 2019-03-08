@@ -47,15 +47,9 @@ public class JwtTokenProvider {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
             return true;
-        } catch (SignatureException ex) {
+        } catch (SignatureException | MalformedJwtException | IllegalArgumentException | UnsupportedJwtException ignored) {
 
-        } catch (MalformedJwtException ex) {
-
-        } catch (ExpiredJwtException ex) {
-
-        } catch (UnsupportedJwtException ex) {
-
-        } catch (IllegalArgumentException ex) {
+        } catch (ExpiredJwtException ignored) {
 
         }
         return false;

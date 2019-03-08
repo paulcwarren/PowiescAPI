@@ -54,7 +54,7 @@ public class AppUserControllerTest {
                 .username("")
                 .password("test")
                 .matchingPassword("test")
-                .gender("seg")
+                .sex("seg")
                 .email("invalidemail")
                 .build();
 

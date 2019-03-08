@@ -42,9 +42,9 @@ public class RegisterUserDTO {
     @JsonProperty(value = "lastName")
     private String lastName;
 
-    @JsonProperty(value = "gender",required = true)
+    @JsonProperty(value = "sex", required = true)
     @NotBlank
-    private String gender;
+    private String sex;
 
     @JsonProperty(value = "email",required = true)
     @NotBlank

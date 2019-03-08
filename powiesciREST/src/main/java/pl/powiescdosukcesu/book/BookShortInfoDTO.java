@@ -17,6 +17,7 @@ public class BookShortInfoDTO {
     public String username;
     public List<String> genres;
     public String description;
+    public double rating;
     public LocalDate createdDate;
 
 }

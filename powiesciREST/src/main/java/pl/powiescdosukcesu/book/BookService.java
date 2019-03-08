@@ -12,7 +12,8 @@ public interface BookService {
 
 	Book getBookById(long id);
 	void deleteBook(Book file);
-	List<Book> getBooksByKeyword(String keyword);
+
+    Page<BookShortInfoDTO> getBooksByKeyword(Pageable pageable, String keyword);
 
 	Page<BookShortInfoDTO> getBooks(Pageable pageable);
 	List<Book> getBooksByGenres(String[] genres);
@@ -25,4 +26,6 @@ public interface BookService {
     Book saveBook(BookCreationDTO book, UserPrincipal user);
 
     FullBookInfoDTO getBookByTitle(String bookTitle);
+
+    void addRating(AddVoteDTO addVoteDTO, String username);
 }

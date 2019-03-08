@@ -29,7 +29,7 @@ public class AppUserRestController {
 
     private final AuthenticationManager authenticationManager;
 
-	@GetMapping("{name}")
+    @GetMapping("/{name}")
 	public ResponseEntity<AppUser> getUser(@PathVariable String name) {
 
 		return new ResponseEntity<>(appUserService.getUser(name),HttpStatus.OK);
@@ -72,7 +72,7 @@ public class AppUserRestController {
                 currentUser.getEmail(),
                 currentUser.getFirstname(),
                 currentUser.getLastname(),
-                currentUser.getGender());
+                currentUser.getSex());
 
         return ResponseEntity.ok(dto);
 

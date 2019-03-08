@@ -19,8 +19,8 @@ public class Genre implements Comparable<Genre>, Serializable {
 	@Column
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
-	@Column(name = "name")
+
+    @Column(name = "name", unique = true)
 	private String name;
 
 	public Genre() {

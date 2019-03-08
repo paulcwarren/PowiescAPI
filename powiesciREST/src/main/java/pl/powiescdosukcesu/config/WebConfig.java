@@ -42,7 +42,7 @@ public class WebConfig {
 	}*/
     /*
      * @Bean public CacheManager cacheManager() { return new
-     * ConcurrentMapCacheManager("files"); }
+     * ConcurrentMapCacheManager("books"); }
      */
 
 }

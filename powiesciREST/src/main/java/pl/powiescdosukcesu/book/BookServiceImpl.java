@@ -35,21 +35,24 @@ public class BookServiceImpl implements BookService {
 
     private final GenreRepository genreRep;
 
+    private final VoteRepository voteRepository;
+
     private final ModelMapper modelMapper;
 
     @Override
     public Page<BookShortInfoDTO> getBooks(Pageable pageable) {
 
         Page<Book> entities = bookRep.findAll(pageable);
-        Page<BookShortInfoDTO> dtos = entities.map(b -> BookShortInfoDTO.builder()
+
+        return entities.map(b -> BookShortInfoDTO.builder()
                 .id(b.getId())
                 .title(b.getTitle())
                 .createdDate(b.getCreatedDate())
+                .description(b.getDescription())
                 .genres(convertToNames(b.getGenres()))
                 .username(b.getUser().getUsername())
+                .rating(b.getRating())
                 .build());
-
-        return dtos;
     }
 
     @Override
@@ -66,15 +69,19 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<Book> getBooksByKeyword(String keyword) {
+    public Page<BookShortInfoDTO> getBooksByKeyword(Pageable pageable, String keyword) {
 
-        List<Book> books = bookRep.findFilesByKeyword(keyword);
-        if (!books.isEmpty()) {
-            return books;
-        } else {
-            throw new BookNotFoundException();
+        Page<Book> entities = bookRep.findFilesByKeyword(pageable, keyword);
 
-        }
+        return entities.map(b -> BookShortInfoDTO.builder()
+                .id(b.getId())
+                .title(b.getTitle())
+                .createdDate(b.getCreatedDate())
+                .genres(convertToNames(b.getGenres()))
+                .description(b.getDescription())
+                .username(b.getUser().getUsername())
+                .rating(b.getRating())
+                .build());
     }
 
     @Override
@@ -93,7 +100,7 @@ public class BookServiceImpl implements BookService {
     public Book saveBook(@NonNull BookCreationDTO bookDTO, UserPrincipal userPrincipal) {
 
         AppUser user = appUserService.getUser(userPrincipal.getId());
-        Set<Genre> genres = bookDTO.getGenres().stream().map(g -> genreRep.findGenreByName(g)).collect(Collectors.toSet());
+        Set<Genre> genres = bookDTO.getGenres().stream().map(genreRep::findGenreByName).collect(Collectors.toSet());
         Book book = Book.builder()
                 .title(bookDTO.getTitle())
                 .file(bookDTO.getFile().getBytes())
@@ -101,6 +108,9 @@ public class BookServiceImpl implements BookService {
                 .description(bookDTO.getDescription())
                 .user(user)
                 .build();
+
+        if (bookDTO.getImage() != null)
+            book.setBackgroundImage(java.util.Base64.getDecoder().decode(bookDTO.getImage()));
 
         bookRep.save(book);
 
@@ -111,7 +121,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public FullBookInfoDTO getBookByTitle(@NonNull String bookTitle) {
 
-        Book book = bookRep.findOneByTitle(bookTitle).orElseThrow(() -> new BookNotFoundException());
+        Book book = bookRep.findOneByTitle(bookTitle).orElseThrow(BookNotFoundException::new);
 
         Hibernate.initialize(book.getComments());
         FullBookInfoDTO dto = modelMapper.map(book, FullBookInfoDTO.class);
@@ -119,6 +129,27 @@ public class BookServiceImpl implements BookService {
 
 
         return dto;
+    }
+
+    @Override
+    public void addRating(@NonNull AddVoteDTO addVoteDTO, @NonNull String username) {
+        Book book = bookRep.findById(addVoteDTO.getBookId()).orElseThrow(BookNotFoundException::new);
+        AppUser user = appUserService.getUser(username);
+        Vote vote;
+        if (voteRepository.findByUserAndBook(user, book).isPresent()) {
+            vote = voteRepository.findByUserAndBook(user, book).get();
+            vote.setRating(addVoteDTO.getRating());
+            voteRepository.save(vote);
+            return;
+        }
+        vote = Vote.builder()
+                .book(book)
+                .rating(addVoteDTO.getRating())
+                .user(user)
+                .build();
+        book.addVote(vote);
+        updateBook(book);
+
     }
 
 
@@ -184,7 +215,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public Book addComment(@NonNull AddCommentDTO addCommentDTO, @NonNull String username) {
 
-        Book book = bookRep.findById(addCommentDTO.getBookId()).orElseThrow(() -> new BookNotFoundException());
+        Book book = bookRep.findById(addCommentDTO.getBookId()).orElseThrow(BookNotFoundException::new);
         AppUser user = appUserService.getUser(username);
         Comment comment = Comment.builder()
                 .book(book)
@@ -198,7 +229,7 @@ public class BookServiceImpl implements BookService {
     }
 
     protected List<String> convertToNames(Set<Genre> genres) {
-        return genres.stream().map(g -> g.getName()).collect(Collectors.toList());
+        return genres.stream().map(Genre::getName).collect(Collectors.toList());
     }
 
 }

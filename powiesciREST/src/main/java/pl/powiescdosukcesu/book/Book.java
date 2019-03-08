@@ -2,6 +2,8 @@ package pl.powiescdosukcesu.book;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "files")
+@Table(name = "books")
 @EntityListeners(AuditingEntityListener.class)
 @Data
 @AllArgsConstructor
@@ -26,13 +28,6 @@ import java.util.Set;
 @Builder
 @ToString(exclude = {"comments","genres"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@NamedEntityGraph(
-        name="book-load",
-        attributeNodes = {
-                @NamedAttributeNode("genres"),
-                @NamedAttributeNode("user")
-        }
-)
 public class Book implements Serializable {
 
 	/**
@@ -45,32 +40,47 @@ public class Book implements Serializable {
 	@Column
 	private long id;
 
-	@Column(name = "title")
+	@Column(name = "title", nullable = false, unique = true)
 	@NotBlank
-	@Size(min = 4)
+	@Size(min = 4, max = 50)
 	private String title;
 
 	@Column(name = "image")
 	private byte[] backgroundImage;
 
-	@Column(name = "creation_date", updatable = false)
+	@Column(name = "created_date", updatable = false)
 	@CreatedDate
-	@DateTimeFormat(pattern = "yyyy/MM/dd")
+	@DateTimeFormat(pattern = "yyyy/MM/dd ")
 	private LocalDate createdDate;
 
 	@Column(name = "rating")
 	private double rating;
 
-	@ManyToMany( cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-	@JoinTable(name = "files_genres",
-				joinColumns = @JoinColumn(name = "file_id"),
+	@ManyToMany(
+			cascade = CascadeType.ALL,
+			fetch = FetchType.LAZY)
+	@JoinTable(name = "books_genres",
+			joinColumns = @JoinColumn(name = "book_id"),
 				inverseJoinColumns = @JoinColumn(name = "genre_id"))
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Set<Genre> genres;
 
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(
+			mappedBy = "book",
+			fetch = FetchType.LAZY,
+			cascade = CascadeType.ALL)
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private List<Comment> comments;
 
+	@OneToMany(
+			mappedBy = "book",
+			fetch = FetchType.LAZY,
+			cascade = CascadeType.ALL)
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	private List<Vote> votes;
+
     @Column(name = "description")
+	@Size(max = 100)
     private String description;
 
 	@Column(name = "file")
@@ -82,9 +92,10 @@ public class Book implements Serializable {
 					   CascadeType.DETACH,
 					   CascadeType.MERGE,
 					   CascadeType.PERSIST,
-			           CascadeType.REFRESH 
+					   CascadeType.REFRESH
 			           })
 	@JoinColumn(name = "user_id")
+	@OnDelete(action = OnDeleteAction.NO_ACTION)
 	private AppUser user;
 
 	public Book(String title, byte[] image, Set<Genre> genres, byte[] file) {
@@ -102,6 +113,14 @@ public class Book implements Serializable {
 			comments = new ArrayList<>();
         comment.setBook(this);
 		this.comments.add(comment);
+	}
+
+	public void addVote(Vote vote) {
+
+		if (this.votes == null)
+			votes = new ArrayList<>();
+		vote.setBook(this);
+		this.votes.add(vote);
 	}
 
 	public String getContent(){

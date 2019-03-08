@@ -53,7 +53,7 @@ public class UserServiceTest {
                                             .email("Sally@gmail.com")
                                             .firstName("Anthony")
                                             .lastName("Captain")
-                                            .gender("Mezczyzna")
+                .sex("male")
                                             .image(image)
                                             .build();
 

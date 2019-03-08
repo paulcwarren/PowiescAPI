@@ -9,6 +9,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.Errors;
@@ -17,7 +18,6 @@ import pl.powiescdosukcesu.security.UserPrincipal;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,11 +38,15 @@ public class BookController {
 
 
     @GetMapping
-    public Page<BookShortInfoDTO> getBooks(@PageableDefault(value = 12) Pageable pageable) {
+    public Page<BookShortInfoDTO> getBooks(@PageableDefault(value = 12) Pageable pageable,
+                                           @RequestParam(required = false) @Nullable String keyword) {
 
+        if (keyword != null && !keyword.isBlank())
+            return bookService.getBooksByKeyword(pageable, keyword);
         return bookService.getBooks(pageable);
 
     }
+
 
     @GetMapping(value="{id}/image",produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getBookImage(@PathVariable int id){
@@ -58,19 +62,7 @@ public class BookController {
                 .body(bookService.getBookByTitle(bookTitle));
     }
 
-    @GetMapping("/id/{fileId}")
-    public ResponseEntity<Book> showContent(@PathVariable long fileId) {
-        Book file = bookService.getBookById(fileId);
-        return new ResponseEntity<>(file, HttpStatus.OK);
 
-    }
-
-    @GetMapping("/{keyword}")
-    public ResponseEntity<List<Book>> filterByKeyword(@PathVariable String keyword) {
-        List<Book> files = bookService.getBooksByKeyword(keyword);
-
-        return new ResponseEntity<>(files, HttpStatus.OK);
-    }
 
     @GetMapping("/genre")
     public List<Book> filterByGenres(@RequestParam("genres") String[] genres) {
@@ -78,11 +70,7 @@ public class BookController {
         return bookService.getBooksByGenres(genres);
     }
 
-    @GetMapping("/date")
-    public List<Book> filterByGenre(@RequestParam("creationDate") LocalDate creationDate) {
 
-        return bookService.getBooksByDate(creationDate);
-    }
 
     @DeleteMapping
     @PreAuthorize("isAuthenticated() and #book.user.getUsername() == #principal.getName()")
@@ -127,7 +115,15 @@ public class BookController {
         bookService.addComment(addCommentDTO, user.getUsername());
         return ResponseEntity
                 .ok()
-                .body(new String("Sucess"));
+                .body("Sucess");
+    }
+
+    @PostMapping("/rating")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity addRating(@RequestBody AddVoteDTO addVoteDTO, @AuthenticationPrincipal UserPrincipal user) {
+
+        bookService.addRating(addVoteDTO, user.getUsername());
+        return ResponseEntity.ok("Success");
     }
 
 
@@ -138,10 +134,12 @@ public class BookController {
     }
 
 
+    //TODO
     @GetMapping("/comments/{id}")
     public ResponseEntity<List<CommentDTO>> getComments(@PathVariable long id) {
         return ResponseEntity.ok()
-                .body(bookService.getBookById(id).getComments().stream().map(com -> modelMapper.map(com, CommentDTO.class)).collect(Collectors.toList()));
+                .body(bookService.getBookById(id).getComments().stream()
+                        .map(com -> modelMapper.map(com, CommentDTO.class)).collect(Collectors.toList()));
     }
 
 }

@@ -11,12 +11,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.powiescdosukcesu.appuser.AppUser;
 import pl.powiescdosukcesu.appuser.AppUserService;
+import pl.powiescdosukcesu.config.SecurityConfig;
+import pl.powiescdosukcesu.security.JwtTokenProvider;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(BookController.class)
+@ContextConfiguration(classes = {SecurityConfig.class})
 public class BookControllerTest {
 
 
@@ -51,6 +55,11 @@ public class BookControllerTest {
 
     @MockBean
     private AuthenticationEntryPoint authenticationEntryPoint;
+
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
+
 
 
     @Before
@@ -107,7 +116,7 @@ public class BookControllerTest {
     public void whenNoBooksFoundWithGivenKeywordThenShouldReturnNotFoundStatus() throws Exception {
 
         //given
-        given(bookService.getBooksByKeyword("noMatch")).willThrow(BookNotFoundException.class);
+        given(bookService.getBooksByKeyword(null, "noMatch")).willThrow(BookNotFoundException.class);
 
         //then
         this.mockMvc.perform(get("/api/noMatch")).andExpect(status().isNotFound());

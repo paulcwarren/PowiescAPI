@@ -30,7 +30,7 @@ public class Comment {
 	@Column(name = "content")
 	private String content;
 
-	@Column(name = "creation_date")
+    @Column(name = "created_date")
 	@CreatedDate
 	private LocalDateTime creationDate;
 
@@ -39,7 +39,7 @@ public class Comment {
 	private AppUser user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "file_id")
+    @JoinColumn(name = "book_id")
 	private Book book;
 
 

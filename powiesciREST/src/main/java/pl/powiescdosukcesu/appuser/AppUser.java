@@ -1,10 +1,9 @@
 package pl.powiescdosukcesu.appuser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import pl.powiescdosukcesu.book.Book;
 
 import javax.persistence.*;
@@ -14,12 +13,12 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude={"password","roles","files"})
+@ToString(exclude = {"password", "roles", "books"})
 public class AppUser implements Serializable {
 
 	/**
@@ -32,14 +31,13 @@ public class AppUser implements Serializable {
 	@Column
 	private long id;
 
-	@Column(name = "username")
+    @Column(name = "username", nullable = false, unique = true)
 	private String username;
 
-	@Column(name = "password")
-	@JsonProperty(access = Access.WRITE_ONLY)
+    @Column(name = "password", nullable = false)
 	private String password;
 
-	@Column(name = "email")
+    @Column(name = "email", unique = true)
 	private String email;
 
 	@Column(name = "first_name")
@@ -51,18 +49,25 @@ public class AppUser implements Serializable {
 	@Column(name = "image")
 	private byte[] image;
 
-	@Column(name = "gender")
-	private String gender;
+    @Column(name = "sex")
+    private String sex;
 
 	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	@JsonIgnore
 	private Collection<Role> roles;
 
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = { CascadeType.DETACH, CascadeType.MERGE,
-			CascadeType.PERSIST, CascadeType.REFRESH })
-	@JsonIgnoreProperties(value = { "user", "comments" })
-	private List<Book> files;
+    @OneToMany(
+            mappedBy = "user",
+            fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.DETACH,
+                    CascadeType.MERGE,
+                    CascadeType.PERSIST,
+                    CascadeType.REFRESH})
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
+    private List<Book> books;
 
 
 	public AppUser(String username, String password, String firstName, String lastName, String email) {
@@ -73,11 +78,11 @@ public class AppUser implements Serializable {
 		this.email = email;
 	}
 
-	public void addFile(Book book) {
-		if (files == null)
-			files = new ArrayList<>();
+    public void addBook(Book book) {
+        if (books == null)
+            books = new ArrayList<>();
 		book.setUser(this);
-		this.getFiles().add(book);
+        this.getBooks().add(book);
 
 	}
 
