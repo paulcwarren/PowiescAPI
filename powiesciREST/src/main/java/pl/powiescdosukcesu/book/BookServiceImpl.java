@@ -8,6 +8,7 @@ import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pl.powiescdosukcesu.appuser.AppUser;
@@ -17,10 +18,8 @@ import pl.powiescdosukcesu.security.UserPrincipal;
 import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service("bookService")
@@ -39,20 +38,40 @@ public class BookServiceImpl implements BookService {
 
     private final ModelMapper modelMapper;
 
+
     @Override
-    public Page<BookShortInfoDTO> getBooks(Pageable pageable) {
+    public Page<BookShortInfoDTO> getBooks(Pageable pageable,
+                                           @Nullable final String keyword,
+                                           @Nullable final String createdDate) {
 
-        Page<Book> entities = bookRep.findAll(pageable);
+        Page<Book> entities = getCorrectPageByValues(pageable,keyword,createdDate);
 
-        return entities.map(b -> BookShortInfoDTO.builder()
-                .id(b.getId())
-                .title(b.getTitle())
-                .createdDate(b.getCreatedDate())
-                .description(b.getDescription())
-                .genres(convertToNames(b.getGenres()))
-                .username(b.getUser().getUsername())
-                .rating(b.getRating())
-                .build());
+
+        return mapToShort(entities);
+    }
+
+    private Page<Book> getCorrectPageByValues(Pageable pageable,
+                                              @Nullable final String keyword,
+                                              @Nullable final String createdDate){
+        final String language = "pl";
+
+        final String datePattern = "yyyy-MM-dd";
+
+        if (keyword != null && !keyword.isBlank())
+            return bookRep.findFilesByKeyword(pageable,keyword);
+        else if(createdDate!=null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(datePattern);
+            formatter = formatter.withLocale(new Locale(language));
+            LocalDate date = LocalDate.parse(createdDate, formatter);
+
+            return bookRep.findByCreatedDate(pageable,date);
+        }
+        else{
+            return bookRep.findAll(pageable);
+        }
+
+
+
     }
 
     @Override
@@ -69,23 +88,16 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Page<BookShortInfoDTO> getBooksByKeyword(Pageable pageable, String keyword) {
+    public Page<BookShortInfoDTO> getBooksByKeyword(Pageable pageable,
+                                                    final String keyword) {
 
         Page<Book> entities = bookRep.findFilesByKeyword(pageable, keyword);
 
-        return entities.map(b -> BookShortInfoDTO.builder()
-                .id(b.getId())
-                .title(b.getTitle())
-                .createdDate(b.getCreatedDate())
-                .genres(convertToNames(b.getGenres()))
-                .description(b.getDescription())
-                .username(b.getUser().getUsername())
-                .rating(b.getRating())
-                .build());
+        return mapToShort(entities);
     }
 
     @Override
-    public List<Book> getBooksByGenres(String[] genres) {
+    public List<Book> getBooksByGenres(final String[] genres) {
 
         List<Book> books = bookRep.findByGenres(genres);
         if (!books.isEmpty()) {
@@ -97,10 +109,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book saveBook(@NonNull BookCreationDTO bookDTO, UserPrincipal userPrincipal) {
+    public Book saveBook(@NonNull BookCreationDTO bookDTO,
+                         final UserPrincipal userPrincipal) {
 
         AppUser user = appUserService.getUser(userPrincipal.getId());
+
         Set<Genre> genres = bookDTO.getGenres().stream().map(genreRep::findGenreByName).collect(Collectors.toSet());
+
         Book book = Book.builder()
                 .title(bookDTO.getTitle())
                 .file(bookDTO.getFile().getBytes())
@@ -132,7 +147,8 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void addRating(@NonNull AddVoteDTO addVoteDTO, @NonNull String username) {
+    public void addRating(@NonNull AddVoteDTO addVoteDTO,
+                          @NonNull String username) {
         Book book = bookRep.findById(addVoteDTO.getBookId()).orElseThrow(BookNotFoundException::new);
         AppUser user = appUserService.getUser(username);
         Vote vote;
@@ -179,7 +195,7 @@ public class BookServiceImpl implements BookService {
             }
 
         } else {
-            throw new NullPointerException("File cannot be null");
+            throw new NullPointerException();
         }
 
 
@@ -201,19 +217,17 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<Book> getBooksByDate(LocalDate date) {
+    public Page<BookShortInfoDTO> getBooksByDate(Pageable pageable,LocalDate date) {
 
-        List<Book> books = bookRep.findByCreatedDate(date);
-        if (!books.isEmpty()) {
-            return books;
-        } else {
-            throw new BookNotFoundException();
+        Page<Book> entities = bookRep.findByCreatedDate(pageable, date);
 
-        }
+        return mapToShort(entities);
+
     }
 
     @Override
-    public Book addComment(@NonNull AddCommentDTO addCommentDTO, @NonNull String username) {
+    public Book addComment(@NonNull AddCommentDTO addCommentDTO,
+                           @NonNull final String username) {
 
         Book book = bookRep.findById(addCommentDTO.getBookId()).orElseThrow(BookNotFoundException::new);
         AppUser user = appUserService.getUser(username);
@@ -228,8 +242,35 @@ public class BookServiceImpl implements BookService {
         return book;
     }
 
-    protected List<String> convertToNames(Set<Genre> genres) {
-        return genres.stream().map(Genre::getName).collect(Collectors.toList());
+
+    @Override
+    public List<CommentDTO> getBookComments(long bookId,int pageNum){
+
+        final int defaultNumOfComments=20;
+        return getBookById(bookId).getComments().stream()
+                .map(com -> modelMapper.map(com, CommentDTO.class))
+                .skip(defaultNumOfComments*pageNum)
+                .limit(defaultNumOfComments)
+                .collect(Collectors.toList());
+    }
+
+    private List<String> convertToNames(Set<Genre> genres) {
+        return genres.stream()
+                .map(Genre::getName)
+                .collect(Collectors.toList());
+    }
+
+
+    private Page<BookShortInfoDTO> mapToShort(Page<Book> page){
+        return page.map(b -> BookShortInfoDTO.builder()
+                .id(b.getId())
+                .title(b.getTitle())
+                .createdDate(b.getCreatedDate())
+                .genres(convertToNames(b.getGenres()))
+                .description(b.getDescription())
+                .username(b.getUser().getUsername())
+                .rating(b.getRating())
+                .build());
     }
 
 }

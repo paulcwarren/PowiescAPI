@@ -21,7 +21,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -39,17 +38,17 @@ public class BookController {
 
     @GetMapping
     public Page<BookShortInfoDTO> getBooks(@PageableDefault(value = 12) Pageable pageable,
-                                           @RequestParam(required = false) @Nullable String keyword) {
+                                           @RequestParam(required = false) @Nullable String keyword,
+                                           @RequestParam(required = false) @Nullable String createdDate) {
 
-        if (keyword != null && !keyword.isBlank())
-            return bookService.getBooksByKeyword(pageable, keyword);
-        return bookService.getBooks(pageable);
+
+        return bookService.getBooks(pageable, keyword, createdDate);
 
     }
 
 
-    @GetMapping(value="{id}/image",produces = MediaType.IMAGE_JPEG_VALUE)
-    public byte[] getBookImage(@PathVariable int id){
+    @GetMapping(value = "{id}/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    public byte[] getBookImage(@PathVariable int id) {
 
         return bookService.getBookById(id).getBackgroundImage();
 
@@ -58,10 +57,9 @@ public class BookController {
     @GetMapping("/title/{bookTitle}")
     public ResponseEntity<FullBookInfoDTO> getBookByTitle(@PathVariable String bookTitle) {
 
-        return ResponseEntity.ok()
-                .body(bookService.getBookByTitle(bookTitle));
-    }
+        return ResponseEntity.ok(bookService.getBookByTitle(bookTitle));
 
+    }
 
 
     @GetMapping("/genre")
@@ -69,7 +67,6 @@ public class BookController {
 
         return bookService.getBooksByGenres(genres);
     }
-
 
 
     @DeleteMapping
@@ -80,9 +77,12 @@ public class BookController {
         return new ResponseEntity<>("Book successfully deleted", HttpStatus.OK);
     }
 
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated() and #book.user.username == #principal.getName()")
-    public ResponseEntity<List<String>> updateBook(@Valid @RequestBody Book book, Principal principal, Errors errors) {
+    public ResponseEntity<List<String>> updateBook(@Valid @RequestBody Book book,
+                                                   Principal principal,
+                                                   Errors errors) {
 
         List<String> errorMessages = new ArrayList<>();
         errors.getAllErrors().forEach(e -> errorMessages.add(e.getDefaultMessage()));
@@ -99,31 +99,31 @@ public class BookController {
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<String>> saveBook(@Valid @RequestBody BookCreationDTO book, @AuthenticationPrincipal UserPrincipal user) {
+    @ResponseStatus(HttpStatus.OK)
+    public void saveBook(@Valid @RequestBody BookCreationDTO book,
+                         @AuthenticationPrincipal UserPrincipal user) {
 
         bookService.saveBook(book, user);
-
-        return new ResponseEntity<>(Collections.singletonList("Book successfully updated"), HttpStatus.OK);
 
     }
 
     @PostMapping("/comment")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<String> postComment(@RequestBody AddCommentDTO addCommentDTO, @AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity<String> postComment(@RequestBody AddCommentDTO addCommentDTO,
+                                              @AuthenticationPrincipal UserPrincipal user) {
 
         System.out.println(addCommentDTO);
         bookService.addComment(addCommentDTO, user.getUsername());
-        return ResponseEntity
-                .ok()
-                .body("Sucess");
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/rating")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity addRating(@RequestBody AddVoteDTO addVoteDTO, @AuthenticationPrincipal UserPrincipal user) {
+    public ResponseEntity addRating(@RequestBody AddVoteDTO addVoteDTO,
+                                    @AuthenticationPrincipal UserPrincipal user) {
 
         bookService.addRating(addVoteDTO, user.getUsername());
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.ok().build();
     }
 
 
@@ -134,12 +134,11 @@ public class BookController {
     }
 
 
-    //TODO
-    @GetMapping("/comments/{id}")
-    public ResponseEntity<List<CommentDTO>> getComments(@PathVariable long id) {
+    @GetMapping("/comments/{bookId}?page={pageNum}")
+    public ResponseEntity<List<CommentDTO>> getComments(@PathVariable long bookId,
+                                                        @PathVariable int pageNum) {
         return ResponseEntity.ok()
-                .body(bookService.getBookById(id).getComments().stream()
-                        .map(com -> modelMapper.map(com, CommentDTO.class)).collect(Collectors.toList()));
+                .body(bookService.getBookComments(bookId, pageNum));
     }
 
 }

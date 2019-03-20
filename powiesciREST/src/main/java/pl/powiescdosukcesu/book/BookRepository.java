@@ -20,7 +20,7 @@ public interface BookRepository extends JpaRepository<Book, Long>, BookRepositor
             + "WHERE book.title LIKE %:keyword% OR book.description LIKE %:keyword%  OR user.username LIKE %:keyword%")
     Page<Book> findFilesByKeyword(Pageable pageable, @Param("keyword") String keyword);
 
-	List<Book> findByCreatedDate(LocalDate date);
+	Page<Book> findByCreatedDate(Pageable pageable, LocalDate date);
 
 	@Query("SELECT book FROM Book book JOIN book.genres genres WHERE genres.name IN (?1)")
 	List<Book> findByGenres(String[] genreName);
@@ -30,8 +30,6 @@ public interface BookRepository extends JpaRepository<Book, Long>, BookRepositor
 	List<byte[]> loadImages();
 
 
-    @Query(value = "INSERT INTO files_votes(name) values (?1)", nativeQuery = true)
-    void addRating(double rating);
 
 	@EntityGraph(attributePaths = {"user","genres"})
     Page<Book> findAll(Pageable pageable);

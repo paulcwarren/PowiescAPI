@@ -8,9 +8,7 @@ import pl.powiescdosukcesu.book.Book;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -67,7 +65,7 @@ public class AppUser implements Serializable {
                     CascadeType.PERSIST,
                     CascadeType.REFRESH})
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    private List<Book> books;
+    private Set<Book> books;
 
 
 	public AppUser(String username, String password, String firstName, String lastName, String email) {
@@ -80,7 +78,7 @@ public class AppUser implements Serializable {
 
     public void addBook(Book book) {
         if (books == null)
-            books = new ArrayList<>();
+            books = new HashSet<>();
 		book.setUser(this);
         this.getBooks().add(book);
 
