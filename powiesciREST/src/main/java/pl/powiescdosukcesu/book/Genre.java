@@ -8,7 +8,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "genres")
 @Data
-public class Genre implements Comparable<Genre>, Serializable {
+public class Genre implements Serializable {
 
 	/**
 	 * 
@@ -20,7 +20,8 @@ public class Genre implements Comparable<Genre>, Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-    @Column(name = "name", unique = true)
+    @Column(name = "name",
+			unique = true)
 	private String name;
 
 	public Genre() {
@@ -32,10 +33,6 @@ public class Genre implements Comparable<Genre>, Serializable {
 		this.name = name;
 	}
 
-	@Override
-	public int compareTo(Genre otherGenre) {
 
-		return this.name.compareTo(otherGenre.getName());
-	}
 
 }

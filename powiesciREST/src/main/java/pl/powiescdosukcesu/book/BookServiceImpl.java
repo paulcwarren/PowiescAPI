@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import pl.powiescdosukcesu.appuser.AppUser;
 import pl.powiescdosukcesu.appuser.AppUserService;
@@ -44,7 +45,7 @@ public class BookServiceImpl implements BookService {
                                            @Nullable final String keyword,
                                            @Nullable final String createdDate) {
 
-        Page<Book> entities = getCorrectPageByValues(pageable,keyword,createdDate);
+        Page<Book> entities = getCorrectPageByValues(pageable, keyword, createdDate);
 
 
         return mapToShort(entities);
@@ -52,24 +53,22 @@ public class BookServiceImpl implements BookService {
 
     private Page<Book> getCorrectPageByValues(Pageable pageable,
                                               @Nullable final String keyword,
-                                              @Nullable final String createdDate){
+                                              @Nullable final String createdDate) {
         final String language = "pl";
 
         final String datePattern = "yyyy-MM-dd";
 
         if (keyword != null && !keyword.isBlank())
-            return bookRep.findFilesByKeyword(pageable,keyword);
-        else if(createdDate!=null) {
+            return bookRep.findFilesByKeyword(pageable, keyword);
+        else if (createdDate != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(datePattern);
             formatter = formatter.withLocale(new Locale(language));
             LocalDate date = LocalDate.parse(createdDate, formatter);
 
-            return bookRep.findByCreatedDate(pageable,date);
-        }
-        else{
+            return bookRep.findByCreatedDate(pageable, date);
+        } else {
             return bookRep.findAll(pageable);
         }
-
 
 
     }
@@ -171,31 +170,31 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Async
-    public void deleteBook(Book book) {
-        Optional<Book> optionalBook = bookRep.findOneByTitle(book.getTitle());
-        if (optionalBook.isPresent()) {
-            bookRep.delete(book);
-        } else {
-            throw new BookNotFoundException();
-        }
+    public void deleteBook(@NonNull String bookToGetDeletedTitle,
+                           @NonNull String authPrincipalName) {
+
+        Book bookToGetDeleted = bookRep.findOneByTitle(bookToGetDeletedTitle)
+                .orElseThrow(BookNotFoundException::new);
+
+        if(!Objects.equals(bookToGetDeleted.getUser().getUsername(), authPrincipalName))
+            throw new AccessDeniedException("User not the owner of the book");
+
+        bookRep.delete(bookToGetDeleted);
+
 
     }
 
     @Override
-    public Book updateBook(Book book) {
+    public Book updateBook(@NonNull Book book) {
 
-        if (book != null) {
-            Optional<Book> optionalBook = bookRep.findOneByTitle(book.getTitle());
-            if (optionalBook.isPresent()) {
-                book.setUser(getBookById(book.getId()).getUser());
-                bookRep.updateBook(book);
-                return book;
-            } else {
-                throw new BookNotFoundException();
-            }
 
+        Optional<Book> optionalBook = bookRep.findOneByTitle(book.getTitle());
+        if (optionalBook.isPresent()) {
+            book.setUser(getBookById(book.getId()).getUser());
+            bookRep.updateBook(book);
+            return book;
         } else {
-            throw new NullPointerException();
+            throw new BookNotFoundException();
         }
 
 
@@ -217,15 +216,6 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Page<BookShortInfoDTO> getBooksByDate(Pageable pageable,LocalDate date) {
-
-        Page<Book> entities = bookRep.findByCreatedDate(pageable, date);
-
-        return mapToShort(entities);
-
-    }
-
-    @Override
     public Book addComment(@NonNull AddCommentDTO addCommentDTO,
                            @NonNull final String username) {
 
@@ -244,12 +234,16 @@ public class BookServiceImpl implements BookService {
 
 
     @Override
-    public List<CommentDTO> getBookComments(long bookId,int pageNum){
+    public List<CommentDTO> getBookComments(@NonNull final String bookTitle,
+                                            @NonNull final int pageNum) {
 
-        final int defaultNumOfComments=20;
-        return getBookById(bookId).getComments().stream()
+        final int defaultNumOfComments = 20;
+
+        return bookRep.findOneByTitle(bookTitle)
+                .orElseThrow(BookNotFoundException::new)
+                .getComments().stream()
                 .map(com -> modelMapper.map(com, CommentDTO.class))
-                .skip(defaultNumOfComments*pageNum)
+                .skip(defaultNumOfComments * pageNum)
                 .limit(defaultNumOfComments)
                 .collect(Collectors.toList());
     }
@@ -261,7 +255,7 @@ public class BookServiceImpl implements BookService {
     }
 
 
-    private Page<BookShortInfoDTO> mapToShort(Page<Book> page){
+    private Page<BookShortInfoDTO> mapToShort(Page<Book> page) {
         return page.map(b -> BookShortInfoDTO.builder()
                 .id(b.getId())
                 .title(b.getTitle())

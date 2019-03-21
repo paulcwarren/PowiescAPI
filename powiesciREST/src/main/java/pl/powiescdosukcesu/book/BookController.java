@@ -2,7 +2,6 @@ package pl.powiescdosukcesu.book;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -12,14 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import pl.powiescdosukcesu.security.UserPrincipal;
 
 import javax.validation.Valid;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -33,21 +28,18 @@ public class BookController {
 
     private final BookService bookService;
 
-    private final ModelMapper modelMapper;
-
-
     @GetMapping
     public Page<BookShortInfoDTO> getBooks(@PageableDefault(value = 12) Pageable pageable,
-                                           @RequestParam(required = false) @Nullable String keyword,
-                                           @RequestParam(required = false) @Nullable String createdDate) {
-
+                                           @RequestParam(required = false) @Nullable final String keyword,
+                                           @RequestParam(required = false) @Nullable final String createdDate) {
 
         return bookService.getBooks(pageable, keyword, createdDate);
 
     }
 
 
-    @GetMapping(value = "{id}/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "{id}/image",
+                produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getBookImage(@PathVariable int id) {
 
         return bookService.getBookById(id).getBackgroundImage();
@@ -55,7 +47,7 @@ public class BookController {
     }
 
     @GetMapping("/title/{bookTitle}")
-    public ResponseEntity<FullBookInfoDTO> getBookByTitle(@PathVariable String bookTitle) {
+    public ResponseEntity<FullBookInfoDTO> getBookByTitle(@PathVariable final String bookTitle) {
 
         return ResponseEntity.ok(bookService.getBookByTitle(bookTitle));
 
@@ -63,38 +55,29 @@ public class BookController {
 
 
     @GetMapping("/genre")
-    public List<Book> filterByGenres(@RequestParam("genres") String[] genres) {
+    public List<Book> filterByGenres(@RequestParam("genres") final String[] genres) {
 
         return bookService.getBooksByGenres(genres);
     }
 
 
     @DeleteMapping
-    @PreAuthorize("isAuthenticated() and #book.user.getUsername() == #principal.getName()")
-    public ResponseEntity<String> deleteBook(@RequestBody Book book, Principal principal) {
+    @PreAuthorize("isAuthenticated()")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteBook(@RequestParam String bookToGetDeletedTitle ,
+                           @AuthenticationPrincipal UserPrincipal principal) {
 
-        bookService.deleteBook(book);
-        return new ResponseEntity<>("Book successfully deleted", HttpStatus.OK);
+        bookService.deleteBook(bookToGetDeletedTitle,principal.getUsername());
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated() and #book.user.username == #principal.getName()")
-    public ResponseEntity<List<String>> updateBook(@Valid @RequestBody Book book,
-                                                   Principal principal,
-                                                   Errors errors) {
-
-        List<String> errorMessages = new ArrayList<>();
-        errors.getAllErrors().forEach(e -> errorMessages.add(e.getDefaultMessage()));
-
-        if (errors.hasErrors()) {
-            errorMessages.forEach(log::info);
-            return new ResponseEntity<>(errorMessages, HttpStatus.BAD_REQUEST);
-        }
+                produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated() and #book.user.username == #principal.getUsername()")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateBook(@Valid @RequestBody Book book,
+                           @AuthenticationPrincipal UserPrincipal principal) {
 
         bookService.updateBook(book);
-        return new ResponseEntity<>(Collections.singletonList("Book successfully updated"), HttpStatus.OK);
-
     }
 
     @PostMapping
@@ -112,7 +95,6 @@ public class BookController {
     public ResponseEntity<String> postComment(@RequestBody AddCommentDTO addCommentDTO,
                                               @AuthenticationPrincipal UserPrincipal user) {
 
-        System.out.println(addCommentDTO);
         bookService.addComment(addCommentDTO, user.getUsername());
         return ResponseEntity.ok().build();
     }
@@ -134,11 +116,11 @@ public class BookController {
     }
 
 
-    @GetMapping("/comments/{bookId}?page={pageNum}")
-    public ResponseEntity<List<CommentDTO>> getComments(@PathVariable long bookId,
-                                                        @PathVariable int pageNum) {
+    @GetMapping("/comments/{bookTitle}?page={pageNum}")
+    public ResponseEntity<List<CommentDTO>> getComments(@PathVariable final String bookTitle,
+                                                        @PathVariable final int pageNum) {
         return ResponseEntity.ok()
-                .body(bookService.getBookComments(bookId, pageNum));
+                .body(bookService.getBookComments(bookTitle, pageNum));
     }
 
 }

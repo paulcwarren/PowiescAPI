@@ -33,20 +33,13 @@ public class AppUserServiceImpl implements AppUserService {
 
     @Override
     public AppUser getUser(long id) {
-        Optional<AppUser> opt = userRep.findById(id);
-        if (opt.isPresent()) {
-
-            return opt.get();
-        } else {
-            throw new AppUserNotFoundException();
-        }
+       return userRep.findById(id).orElseThrow(AppUserNotFoundException::new);
     }
 
     @Override
     public AppUser getUser(String username) {
 
-        Optional<AppUser> opt = userRep.findByUsername(username);
-        return opt.get();
+        return userRep.findByUsername(username).orElseThrow(AppUserNotFoundException::new);
 
     }
 
@@ -66,7 +59,7 @@ public class AppUserServiceImpl implements AppUserService {
     public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
 
         AppUser user = userRep.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password."));
+                .orElseThrow(AppUserNotFoundException::new);
 
         return UserPrincipal.create(user);
     }

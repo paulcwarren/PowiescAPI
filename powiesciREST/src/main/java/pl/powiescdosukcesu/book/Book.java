@@ -16,7 +16,6 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -57,12 +56,12 @@ public class Book implements Serializable {
 	@Column(name = "rating")
 	private double rating;
 
-	@ManyToMany(
-			cascade = CascadeType.ALL,
-			fetch = FetchType.LAZY)
+	@ManyToMany(cascade = CascadeType.ALL,
+			    fetch = FetchType.LAZY)
 	@JoinTable(name = "books_genres",
-			joinColumns = @JoinColumn(name = "book_id"),
-				inverseJoinColumns = @JoinColumn(name = "genre_id"))
+               joinColumns = @JoinColumn(name = "book_id"),
+               inverseJoinColumns = @JoinColumn(name = "genre_id"))
+
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Set<Genre> genres;
 

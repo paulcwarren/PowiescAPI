@@ -10,6 +10,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import pl.powiescdosukcesu.appuser.AppUser;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,11 +31,13 @@ public class BookRepositoryTest {
 
 	
 	@Before
-	public void prepeareSomedData() {
+	public void prepareSomeData() {
 
 		Set<Genre> genres = new HashSet<>();
-		genres.add(new Genre("Horror"));
-		genres.add(new Genre("Romance"));
+		Genre horror = new Genre("Horror");
+		genres.add(horror);
+		Genre romance = new Genre("Romance");
+		genres.add(romance);
 		Book book = Book.builder()
 				.id(1)
 				.user(new AppUser("test", "test", null, null, "test@as.pl"))
@@ -40,22 +46,27 @@ public class BookRepositoryTest {
 				.genres(genres)
 				.file("file".getBytes())
 				.build();
+
 		bookRep.save(book);
-		genres.add(new Genre("Comedy"));
-		genres.add(new Genre("Romance"));
+
+
+		HashSet<Genre> genres2 = new HashSet<>(Set.of(new Genre("Comedy")));
 		Book book2 = Book.builder()
 				.id(2)
 				.user(new AppUser("admin", "admin", null, null, "admin@as.pl"))
-				.title("Harry Potter")
-				.backgroundImage("image".getBytes())
-				.genres(genres)
-				.file("file".getBytes())
+				.title("Barry Sanders and Don test")
+				.backgroundImage("image2".getBytes())
+				.genres(genres2)
+				.file("file2".getBytes())
 				.build();
 
-		
+
 		bookRep.save(book2);
 		
 	}
+
+	@Test
+	public void contextLoads(){}
 
 	@Test
 	public void shouldntCauseNPlus1Problem(){
@@ -66,19 +77,25 @@ public class BookRepositoryTest {
 	@Test
 	public void whenSearchingForBookWithParamKeywordShouldReturnListOfOneElement() {
 
-        //assertThat(bookRep.findFilesByKeyword(null,"test").size()).isEqualTo(1);
+        assertThat(bookRep.findFilesByKeyword(null,"test").getTotalElements()).isEqualTo(bookRep.count());
 	}
 
 	@Test
 	public void whenSearchingForFilesCreatedTodayShouldReturnListOfAllFiles() {
-		
-		//assertThat(bookRep.findByCreatedDate(null,LocalDate.parse(new SimpleDateFormat("YYYY-MM-DD").format(new Date()))).size())
-				//.isEqualTo(bookRep.count());
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+		String string = LocalDate.now().format(formatter);
+		LocalDate date = LocalDate.parse(string, formatter);
+		System.err.println(date);
+		System.err.println(bookRep.findOneByTitle("Harry Potter").get().getCreatedDate());
+		assertThat(bookRep.findByCreatedDate(null,date)
+				.getTotalElements())
+				.isEqualTo(bookRep.count());
 	}
 	
 	@Test
 	public void whenSearchingForRomanceOrHorrorGenreBooksShouldReturnListOfTwoBooks() {
-		assertThat(bookRep.findByGenres(new String[] {"Romance"}).size()).isEqualTo(2);
+		assertThat(bookRep.findByGenres(new String[] {"Romance"}).size()).isEqualTo(1);
 	}
 	
 	@Test
