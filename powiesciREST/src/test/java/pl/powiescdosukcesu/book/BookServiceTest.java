@@ -9,8 +9,10 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import pl.powiescdosukcesu.appuser.AppUser;
 import pl.powiescdosukcesu.appuser.AppUserServiceImpl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,6 +26,7 @@ public class BookServiceTest {
 
 	@Mock
 	private BookRepository bookRep;
+
 
 	@Mock
 	private GenreRepository genreRep;
@@ -69,18 +72,6 @@ public class BookServiceTest {
 	public void contextLoads() {
 
 	}
-
-	@Test
-	public void shouldLoadTwoFiles() {
-
-		
-		//given
-		given(bookRep.findAll()).willReturn(books);
-		
-		//then
-        //assertThat(bookService.getBooks().getTotalElements()).isEqualTo(2);
-
-	}
 	
 	@Test(expected=BookNotFoundException.class)
 	public void whenBookIdNotFoundShouldThrowBookNotFoundException() {
@@ -109,8 +100,19 @@ public class BookServiceTest {
 	}
 
 	@Test
-    public void shouldReturnSavedBook(){
-        assertThat(bookService.saveBook(null, null)).isEqualTo(book);
+    public void whenSavingBookThenShouldReturnCorrectTitle(){
+
+	    //given
+	    BookCreationDTO dto = new BookCreationDTO();
+	    dto.setFile("random text");
+	    dto.setGenres(Collections.singletonList("Romance"));
+	    dto.setTitle("new poem");
+
+	    given(appUserService.getUser("test")).willReturn(new AppUser("test","test","test","tester","test@hg.pl"));
+	    given(genreRep.findGenreByName("Romance")).willReturn(new Genre("Romance"));
+
+	    //then
+	    assertThat(bookService.saveBook(dto, "test").getTitle()).isEqualTo("new poem");
     }
 
     @Test
@@ -145,18 +147,31 @@ public class BookServiceTest {
 	public void whenAddingCommentToBookShouldInrcreaseNumberOfCommentsOfFileByOne(){
 
 	    //given
-        given(bookRep.findOneByTitle("Harry Potter")).willReturn(Optional.of(book));
         given(bookRep.findById(1L)).willReturn(Optional.of(book));
+        given(bookRep.findOneByTitle(book.getTitle())).willReturn(Optional.of(book));
+        given(appUserService.getUser("test")).willReturn(new AppUser("test","test","test","tester","test@hg.pl"));
+        AddCommentDTO dto = new AddCommentDTO();
+        dto.setBookId(1);
+        dto.setComment("cool one");
 
         //then
-        assertThat(bookService.addComment(null, null).getComments().size()).isEqualTo(1);
+        assertThat(bookService.addComment(dto, "test").getComments().size()).isEqualTo(1);
 
 	}
 
+	//TODO
 	@Test
-    public void whenAddingRatingThenReturnRating(){
+    public void whenAddingRatingThenReturnRating() {
+
+	    //given
+        AddVoteDTO dto = new AddVoteDTO();
+        dto.setBookId(1);
+        dto.setRating(6);
+        given(bookRep.findById(dto.getBookId())).willReturn(Optional.of(book));
+
+
+        //then
 	    bookService.addRating(new AddVoteDTO(7,book.getId()),book.getUser().getUsername());
-	    given(appUserService.getUser(book.getUser().getUsername())).willReturn(book.getUser());
 
 	    assertThat(book.getRating()).isEqualTo(7);
     }

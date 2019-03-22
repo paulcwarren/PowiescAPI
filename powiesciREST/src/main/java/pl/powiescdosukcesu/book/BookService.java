@@ -2,8 +2,6 @@ package pl.powiescdosukcesu.book;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.Nullable;
-import pl.powiescdosukcesu.security.UserPrincipal;
 
 import java.util.List;
 
@@ -16,7 +14,7 @@ public interface BookService {
 
     Page<BookShortInfoDTO> getBooksByKeyword(Pageable pageable, String keyword);
 
-    Page<BookShortInfoDTO> getBooks(Pageable pageable, @Nullable String keyword, @Nullable String createdDate);
+    Page<BookShortInfoDTO> getBooks(Pageable pageable, String keyword,String createdDate);
 
     List<Book> getBooksByGenres(String[] genres);
 
@@ -26,7 +24,7 @@ public interface BookService {
 
     Book addComment(AddCommentDTO addCommentDTO, String username);
 
-    Book saveBook(BookCreationDTO book, UserPrincipal user);
+    Book saveBook(BookCreationDTO book, String username);
 
     FullBookInfoDTO getBookByTitle(String bookTitle);
 

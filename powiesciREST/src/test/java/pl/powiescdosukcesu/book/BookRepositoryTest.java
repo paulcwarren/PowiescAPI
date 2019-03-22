@@ -7,13 +7,13 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import pl.powiescdosukcesu.appuser.AppUser;
+import pl.powiescdosukcesu.config.JPAConfig;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
+@ContextConfiguration(classes={JPAConfig.class})
 public class BookRepositoryTest {
 
 	@Autowired
@@ -80,14 +81,13 @@ public class BookRepositoryTest {
         assertThat(bookRep.findFilesByKeyword(null,"test").getTotalElements()).isEqualTo(bookRep.count());
 	}
 
-	@Test
+
+    @Test
 	public void whenSearchingForFilesCreatedTodayShouldReturnListOfAllFiles() {
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 		String string = LocalDate.now().format(formatter);
 		LocalDate date = LocalDate.parse(string, formatter);
-		System.err.println(date);
-		System.err.println(bookRep.findOneByTitle("Harry Potter").get().getCreatedDate());
 		assertThat(bookRep.findByCreatedDate(null,date)
 				.getTotalElements())
 				.isEqualTo(bookRep.count());

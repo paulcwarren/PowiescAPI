@@ -22,14 +22,17 @@ public class RegisterUserDTO {
 
     @JsonProperty(value = "username",required = true)
     @NotUsed(message = "*Nazwa użytkownika jest zajęta")
+    @NotBlank(message = "*Pole jest wymagane")
     @Size(min = 4,max = 30)
     private String username;
 
     @JsonProperty(value = "password",required = true)
+    @NotBlank(message = "*Pole jest wymagane")
     @Size(min = 8, max = 40, message = "*Hasło jest za krótkie")
     private String password;
 
     @JsonProperty(value = "matchingPassword",required = true)
+    @NotBlank(message = "*Pole jest wymagane")
     @Size(min = 8, max = 40)
     private String matchingPassword;
 
@@ -43,11 +46,11 @@ public class RegisterUserDTO {
     private String lastName;
 
     @JsonProperty(value = "sex", required = true)
-    @NotBlank
+    @NotBlank(message = "*Pole jest wymagane")
     private String sex;
 
     @JsonProperty(value = "email",required = true)
-    @NotBlank
+    @NotBlank(message = "*Pole jest wymagane")
     @Email(message = "*Niepoprawny adres E-Mail")
     private String email;
 

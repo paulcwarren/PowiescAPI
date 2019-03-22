@@ -15,7 +15,6 @@ import javax.transaction.Transactional;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Transactional
 @DependsOn("securityConfig")

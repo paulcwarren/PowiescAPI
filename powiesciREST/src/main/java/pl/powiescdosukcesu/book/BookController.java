@@ -86,7 +86,7 @@ public class BookController {
     public void saveBook(@Valid @RequestBody BookCreationDTO book,
                          @AuthenticationPrincipal UserPrincipal user) {
 
-        bookService.saveBook(book, user);
+        bookService.saveBook(book, user.getUsername());
 
     }
 

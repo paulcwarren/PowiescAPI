@@ -8,13 +8,11 @@ import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import pl.powiescdosukcesu.appuser.AppUser;
 import pl.powiescdosukcesu.appuser.AppUserService;
-import pl.powiescdosukcesu.security.UserPrincipal;
 
 import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
@@ -42,8 +40,8 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Page<BookShortInfoDTO> getBooks(Pageable pageable,
-                                           @Nullable final String keyword,
-                                           @Nullable final String createdDate) {
+                                           final String keyword,
+                                           final String createdDate) {
 
         Page<Book> entities = getCorrectPageByValues(pageable, keyword, createdDate);
 
@@ -52,15 +50,15 @@ public class BookServiceImpl implements BookService {
     }
 
     private Page<Book> getCorrectPageByValues(Pageable pageable,
-                                              @Nullable final String keyword,
-                                              @Nullable final String createdDate) {
+                                              final String keyword,
+                                              final String createdDate) {
         final String language = "pl";
 
         final String datePattern = "yyyy-MM-dd";
 
         if (keyword != null && !keyword.isBlank())
             return bookRep.findFilesByKeyword(pageable, keyword);
-        else if (createdDate != null) {
+        else if (createdDate != null && !createdDate.isBlank()) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(datePattern);
             formatter = formatter.withLocale(new Locale(language));
             LocalDate date = LocalDate.parse(createdDate, formatter);
@@ -109,22 +107,12 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Book saveBook(@NonNull BookCreationDTO bookDTO,
-                         final UserPrincipal userPrincipal) {
+                         @NonNull final String username) {
 
-        AppUser user = appUserService.getUser(userPrincipal.getId());
+        AppUser user = appUserService.getUser(username);
 
-        Set<Genre> genres = bookDTO.getGenres().stream().map(genreRep::findGenreByName).collect(Collectors.toSet());
-
-        Book book = Book.builder()
-                .title(bookDTO.getTitle())
-                .file(bookDTO.getFile().getBytes())
-                .genres(genres)
-                .description(bookDTO.getDescription())
-                .user(user)
-                .build();
-
-        if (bookDTO.getImage() != null)
-            book.setBackgroundImage(java.util.Base64.getDecoder().decode(bookDTO.getImage()));
+        Book book = convertFromCreationDtoToBook(bookDTO);
+        book.setUser(user);
 
         bookRep.save(book);
 
@@ -151,7 +139,7 @@ public class BookServiceImpl implements BookService {
         Book book = bookRep.findById(addVoteDTO.getBookId()).orElseThrow(BookNotFoundException::new);
         AppUser user = appUserService.getUser(username);
         Vote vote;
-        if (voteRepository.findByUserAndBook(user, book).isPresent()) {
+        if (isVotePresent(book, user)) {
             vote = voteRepository.findByUserAndBook(user, book).get();
             vote.setRating(addVoteDTO.getRating());
             voteRepository.save(vote);
@@ -165,6 +153,10 @@ public class BookServiceImpl implements BookService {
         book.addVote(vote);
         updateBook(book);
 
+    }
+
+    private boolean isVotePresent(Book book, AppUser user) {
+        return voteRepository.findByUserAndBook(user, book).isPresent();
     }
 
 
@@ -265,6 +257,22 @@ public class BookServiceImpl implements BookService {
                 .username(b.getUser().getUsername())
                 .rating(b.getRating())
                 .build());
+    }
+
+    private Book convertFromCreationDtoToBook(BookCreationDTO bookDTO){
+        Set<Genre> genres = bookDTO.getGenres().stream().map(genreRep::findGenreByName).collect(Collectors.toSet());
+
+        Book book = Book.builder()
+                .title(bookDTO.getTitle())
+                .file(bookDTO.getFile().getBytes())
+                .genres(genres)
+                .description(bookDTO.getDescription())
+                .build();
+
+        if (bookDTO.getImage() != null)
+            book.setBackgroundImage(java.util.Base64.getDecoder().decode(bookDTO.getImage()));
+
+        return book;
     }
 
 }

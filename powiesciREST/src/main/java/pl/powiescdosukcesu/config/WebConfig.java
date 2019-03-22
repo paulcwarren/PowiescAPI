@@ -2,13 +2,11 @@ package pl.powiescdosukcesu.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 @Configuration
 @EnableAsync
-@EnableJpaAuditing
 public class WebConfig {
 
     private final static int MAX_UPLOAD_SIZE = 100000;
