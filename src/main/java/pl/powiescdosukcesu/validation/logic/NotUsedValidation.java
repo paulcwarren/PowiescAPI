@@ -2,7 +2,7 @@ package pl.powiescdosukcesu.validation.logic;
 
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.powiescdosukcesu.appuser.AppUserRepository;
+import pl.powiescdosukcesu.appuser.repositories.AppUserRepository;
 import pl.powiescdosukcesu.validation.annotations.NotUsed;
 
 import javax.validation.ConstraintValidator;

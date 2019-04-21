@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.security;
+package pl.powiescdosukcesu.authentication;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

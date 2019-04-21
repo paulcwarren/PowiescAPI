@@ -4,8 +4,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import pl.powiescdosukcesu.appuser.AppUser;
-import pl.powiescdosukcesu.appuser.AppUserRepository;
+import pl.powiescdosukcesu.appuser.repositories.AppUserRepository;
 import pl.powiescdosukcesu.book.Book;
 import pl.powiescdosukcesu.book.files.BookContentFile;
 import pl.powiescdosukcesu.book.files.BookContentFileStore;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 @SpringBootApplication
+@EnableWebMvc
 public class PowiesciRestApplication {
 
     public static void main(String[] args) {

@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import pl.powiescdosukcesu.appuser.AppUserRepository;
+import pl.powiescdosukcesu.appuser.repositories.AppUserRepository;
 import pl.powiescdosukcesu.appuser.RegisterUserDTO;
 import pl.powiescdosukcesu.validation.annotations.NotUsed;
 import pl.powiescdosukcesu.validation.logic.NotUsedValidation;
