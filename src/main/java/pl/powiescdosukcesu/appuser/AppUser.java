@@ -59,7 +59,7 @@ public class AppUser implements Serializable {
     @NotNull
     private String sex;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -95,4 +95,5 @@ public class AppUser implements Serializable {
         book.setUser(this);
         this.getBooks().add(book);
     }
+
 }

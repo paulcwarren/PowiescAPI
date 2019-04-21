@@ -4,6 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import pl.powiescdosukcesu.appuser.AppUser;
 import pl.powiescdosukcesu.appuser.repositories.AppUserRepository;
@@ -34,13 +35,14 @@ public class PowiesciRestApplication {
                                   BookContentFileStore store,
                                   GenreRepository genreRepository,
                                   AppUserRepository appUserRepository,
-                                  RoleRepository roleRepository) {
+                                  RoleRepository roleRepository,
+                                  BCryptPasswordEncoder encoder) {
         return (args) -> {
 
             Role role = new Role("ROLE_NORMAL_USER");
             AppUser user = AppUser.builder()
                     .username("Jack")
-                    .password("secret")
+                    .password(encoder.encode("haslo"))
                     .roles(List.of(role))
                     .sex("MALE")
                     .email("didi@sf.ko")

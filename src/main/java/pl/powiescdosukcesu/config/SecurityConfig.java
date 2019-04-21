@@ -26,14 +26,11 @@ import pl.powiescdosukcesu.appuser.services.AppUserService;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final AuthenticationEntryPoint authenticationEntryPoint;
-
     private final AppUserService appUserService;
 
     @Autowired
-    public SecurityConfig(AuthenticationEntryPoint authenticationEntryPoint, AppUserService appUserService) {
+    public SecurityConfig(AppUserService appUserService) {
 
-        this.authenticationEntryPoint = authenticationEntryPoint;
         this.appUserService = appUserService;
     }
 
@@ -52,15 +49,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.headers().frameOptions().disable();
-        http.cors().and().csrf().disable().authorizeRequests().and()
-                .exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint)
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .logout().permitAll()
-                .logoutSuccessHandler((new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)));
+
+        http.cors().and().csrf().disable();
+
     }
 
     @Bean

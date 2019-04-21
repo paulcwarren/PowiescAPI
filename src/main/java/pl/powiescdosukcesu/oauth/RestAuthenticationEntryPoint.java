@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.authentication;
+package pl.powiescdosukcesu.oauth;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -18,6 +18,7 @@ public final class RestAuthenticationEntryPoint
         final HttpServletResponse response, 
         final AuthenticationException authException) throws IOException {
 
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
     }
 }
