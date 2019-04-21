@@ -27,30 +27,25 @@ public class RegisterUserDTOTest {
     @Mock
     private AppUserRepository appUserRepository;
 
-
     private Validator validator;
 
-    final ConstraintAnnotationDescriptor.Builder<NotUsed> descriptorBuilder =
+    private final ConstraintAnnotationDescriptor.Builder<NotUsed> descriptorBuilder =
             new ConstraintAnnotationDescriptor.Builder<>(NotUsed.class);
 
     @InjectMocks
     private NotUsedValidation notUsedValidation;
 
-
     private RegisterUserDTO registerUserDTO = new RegisterUserDTO();
-
 
     @Before
     public void setUp() {
+
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
     }
 
     @Test
-    public void contextLoads() {
-
-
-    }
+    public void contextLoads() {}
 
     @Test
     public void blankFieldsShouldFailValidation() {
@@ -73,7 +68,6 @@ public class RegisterUserDTOTest {
 
     @Test
     public void invalidEmailShouldFailValidation() {
-
 
         registerUserDTO = RegisterUserDTO.builder()
                 .username("")
@@ -100,5 +94,4 @@ public class RegisterUserDTOTest {
 
         assertThat(violations.stream().map(ConstraintViolation::getMessage)).contains("Hasła się nie zgadzają");
     }
-
 }

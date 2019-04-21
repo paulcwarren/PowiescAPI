@@ -19,7 +19,6 @@ import javax.validation.constraints.Size;
 @Builder
 public class RegisterUserDTO {
 
-
     @JsonProperty(value = "username",required = true)
     @NotUsed(message = "*Nazwa użytkownika jest zajęta")
     @NotBlank(message = "*Pole jest wymagane")
@@ -53,6 +52,4 @@ public class RegisterUserDTO {
     @NotBlank(message = "*Pole jest wymagane")
     @Email(message = "*Niepoprawny adres E-Mail")
     private String email;
-
-
 }

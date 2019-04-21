@@ -1,8 +1,0 @@
--------------------------------------------------------------------------------
-Test set: pl.powiescdosukcesu.book.BookServiceTest
--------------------------------------------------------------------------------
-Tests run: 10, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.099 s <<< FAILURE! - in pl.powiescdosukcesu.book.BookServiceTest
-whenAddingRatingThenReturnRating(pl.powiescdosukcesu.book.BookServiceTest)  Time elapsed: 0.002 s  <<< ERROR!
-java.lang.NullPointerException
-	at pl.powiescdosukcesu.book.BookServiceTest.whenAddingRatingThenReturnRating(BookServiceTest.java:183)
-

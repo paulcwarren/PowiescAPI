@@ -11,9 +11,7 @@ import javax.validation.ConstraintValidatorContext;
 @NoArgsConstructor
 public class NotUsedValidation implements ConstraintValidator<NotUsed,String> {
 
-
 	private AppUserRepository appUserRepository;
-
 
 	@Autowired
 	public NotUsedValidation(AppUserRepository appUserRepository){
@@ -21,19 +19,11 @@ public class NotUsedValidation implements ConstraintValidator<NotUsed,String> {
 	}
 
     @Override
-	public void initialize(NotUsed constraintAnnotation) {
-
-	}
-
+	public void initialize(NotUsed constraintAnnotation) {}
 
 	@Override
 	public boolean isValid(String username, ConstraintValidatorContext context) {
 
-		if(username==null || username.equals(""))
-			return false;
-
-        return !appUserRepository.existsByUsername(username);
-
+		return username != null && !username.equals("") && !appUserRepository.existsByUsername(username);
     }
-
 }

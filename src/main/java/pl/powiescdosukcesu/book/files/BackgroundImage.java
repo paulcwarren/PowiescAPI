@@ -1,6 +1,8 @@
 package pl.powiescdosukcesu.book.files;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.content.commons.annotations.ContentId;
 import org.springframework.content.commons.annotations.ContentLength;
 import org.springframework.content.commons.annotations.MimeType;
@@ -13,10 +15,10 @@ import javax.persistence.OneToOne;
 import java.util.UUID;
 
 @Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class BookBackgroundImage {
+public class BackgroundImage {
 
     @Id
     @GeneratedValue

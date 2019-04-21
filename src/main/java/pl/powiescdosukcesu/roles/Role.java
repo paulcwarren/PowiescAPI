@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.appuser;
+package pl.powiescdosukcesu.roles;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,9 +19,7 @@ public class Role {
     @Column(name = "name", unique = true)
 	private String name;
 
-
 	public Role(String name) {
 		this.name = name;
 	}
-
 }

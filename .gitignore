@@ -1,4 +1,7 @@
-
+/lib/
+/out/
+/target/
+system.properties
 
 ### STS ###
 .apt_generated

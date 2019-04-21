@@ -1,4 +1,7 @@
 package pl.powiescdosukcesu.genre;
 
-public class GenreRepository {
+import org.springframework.data.repository.CrudRepository;
+
+public interface GenreRepository extends CrudRepository<Genre,Short> {
+    Genre findByName(String name);
 }

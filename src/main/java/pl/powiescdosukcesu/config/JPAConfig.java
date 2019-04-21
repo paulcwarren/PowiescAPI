@@ -1,21 +1,24 @@
 package pl.powiescdosukcesu.config;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.content.fs.config.EnableFilesystemStores;
+import org.springframework.content.fs.io.FileSystemResourceLoader;
+import org.springframework.content.rest.config.RestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import pl.powiescdosukcesu.book.Book;
-import pl.powiescdosukcesu.book.BookShortInfoDTO;
 
 import javax.sql.DataSource;
+import java.io.File;
 
 @Configuration
 @EntityScan("pl.powiescdosukcesu")
@@ -23,23 +26,25 @@ import javax.sql.DataSource;
 @PropertySource("classpath:application.properties")
 @EnableJpaRepositories(basePackages = "pl.powiescdosukcesu")
 @EnableJpaAuditing
+@EnableAsync
+@EnableFilesystemStores
+@Import(RestConfiguration.class)
 public class JPAConfig {
 
+    @Bean
+    File filesystemRoot() {
 
-    @Value("${spring.datasource.driver-class-name}")
-    private String driverClassName;
-
-    @Value("${spring.datasource.url}")
-    private String url;
-
-    @Value("${spring.datasource.username}")
-    private String username;
-
-    @Value("${spring.datasource.password}")
-    private String password;
+        return new File("/home/robertdev/Documents");
+    }
 
     @Bean
+    public FileSystemResourceLoader fsResourceLoader() {
+
+        return new FileSystemResourceLoader(filesystemRoot().getAbsolutePath());
+    }
+    @Bean
     public DataSourceInitializer dataSourceInitializer(DataSource dataSource) {
+
         DataSourceInitializer initializer = new DataSourceInitializer();
         initializer.setDataSource(dataSource);
         return initializer;
@@ -48,26 +53,12 @@ public class JPAConfig {
     @Bean
     public DataSource dataSource() {
 
-        return DataSourceBuilder.create()
-                .username(username)
-                .password(password)
-                .url(url)
-                .driverClassName(driverClassName)
-                .build();
-
+        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
     }
 
     @Bean
     public ModelMapper modelMapper() {
-        ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        mapper.typeMap(Book.class, BookShortInfoDTO.class)
-                .addMappings(m ->
-                        m.map(src -> src.getUser().getUsername(), BookShortInfoDTO::setUsername));
 
-
-        return mapper;
-
+        return new ModelMapper();
     }
-
 }

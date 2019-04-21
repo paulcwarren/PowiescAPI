@@ -1,7 +1,4 @@
-package gettingstarted;
-
-import java.io.IOException;
-import java.util.Optional;
+package pl.powiescdosukcesu.book.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -11,43 +8,30 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import pl.powiescdosukcesu.book.Book;
+import pl.powiescdosukcesu.book.files.BookContentFileStore;
+import pl.powiescdosukcesu.book.repositories.BookRepository;
+
+import java.util.Optional;
 
 @RestController
 public class FileContentController {
 
-	@Autowired private FileRepository filesRepo;
-	@Autowired private FileContentStore contentStore;
-	
-	@RequestMapping(value="/files/{fileId}", method = RequestMethod.PUT)
-	public ResponseEntity<?> setContent(@PathVariable("fileId") Long id, @RequestParam("file") MultipartFile file) 
-			throws IOException {
+	@Autowired
+    private BookRepository bookRepository;
+	@Autowired
+    private BookContentFileStore store;
 
-		Optional<File> f = filesRepo.findById(id);
-		if (f.isPresent()) {
-			f.get().setMimeType(file.getContentType());
-
-			contentStore.setContent(f.get(), file.getInputStream());
-
-			// save updated content-related info
-			filesRepo.save(f.get());
-
-			return new ResponseEntity<Object>(HttpStatus.OK);
-		}
-		return null;
-	}
-
-	@RequestMapping(value="/files/{fileId}", method = RequestMethod.GET)
+	@RequestMapping(value="/bookStore/{fileId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getContent(@PathVariable("fileId") Long id) {
 
-		Optional<File> f = filesRepo.findById(id);
+		Optional<Book> f = bookRepository.findById(id);
 		if (f.isPresent()) {
-			InputStreamResource inputStreamResource = new InputStreamResource(contentStore.getContent(f.get()));
+			var inputStreamResource = new InputStreamResource(store.getContent(f.get().getFile()));
 			HttpHeaders headers = new HttpHeaders();
-			headers.setContentLength(f.get().getContentLength());
-			headers.set("Content-Type", f.get().getMimeType());
+			headers.setContentLength(f.get().getFile().getContentLength());
+			headers.set("Content-Type", f.get().getFile().getMimeType());
 			return new ResponseEntity<Object>(inputStreamResource, headers, HttpStatus.OK);
 		}
 		return null;

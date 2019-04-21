@@ -6,21 +6,19 @@ import pl.powiescdosukcesu.validation.annotations.PasswordMatch;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class PasswordMatchValidator implements ConstraintValidator<PasswordMatch,Object> {
+public class PasswordMatchValidator implements ConstraintValidator<PasswordMatch, Object> {
 
-	
-	@Override
-	public void initialize(PasswordMatch constraintAnnotation) {
-		
-	}
 
-	@Override
-	public boolean isValid(Object object, ConstraintValidatorContext context) {
-		
-		RegisterUserDTO user=(RegisterUserDTO)object;
-		if(user.getPassword()==null || user.getMatchingPassword()==null)
-			return false;
-		return user.getPassword().equals(user.getMatchingPassword());
-	}
+    @Override
+    public void initialize(PasswordMatch constraintAnnotation) {
 
+    }
+
+    @Override
+    public boolean isValid(Object object, ConstraintValidatorContext context) {
+
+
+        RegisterUserDTO user = (RegisterUserDTO) object;
+        return user.getPassword() != null && user.getMatchingPassword() != null && user.getPassword().equals(user.getMatchingPassword());
+    }
 }
