@@ -5,7 +5,7 @@ import org.springframework.content.rest.StoreRestResource;
 import org.springframework.stereotype.Component;
 
 @Component
-@StoreRestResource
+@StoreRestResource(path="books")
 public interface BookContentFileStore extends ContentStore<BookContentFile, String> {
 }
 
