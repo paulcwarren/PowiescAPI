@@ -1,4 +1,4 @@
-package pl.powiescdosukcesu.user;
+package pl.powiescdosukcesu.unit.user;
 
 import org.hibernate.validator.internal.util.annotation.ConstraintAnnotationDescriptor;
 import org.junit.Before;
@@ -17,6 +17,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -50,11 +51,16 @@ public class RegisterUserDTOTest {
     @Test
     public void blankFieldsShouldFailValidation() {
 
-        registerUserDTO =
-                new RegisterUserDTO("", "", "", "", "", "", "", "");
+        registerUserDTO = RegisterUserDTO.builder()
+                            .email("")
+                            .username("")
+                            .password("")
+                            .matchingPassword("")
+                            .sex("").build();
+
         Set<ConstraintViolation<RegisterUserDTO>> violations = validator.validate(registerUserDTO);
 
-        assertThat(violations.stream().map(ConstraintViolation::getMessage)).contains("*Pole jest wymagane");
+        assertThat(violations).isNotEmpty();
     }
 
     @Test
@@ -78,11 +84,13 @@ public class RegisterUserDTOTest {
 
         Set<ConstraintViolation<RegisterUserDTO>> violations = validator.validate(registerUserDTO);
 
-        assertThat(violations.stream().map(ConstraintViolation::getMessage)).contains("*Niepoprawny adres E-Mail");
+        assertThat(violations.stream().map(ConstraintViolation::getPropertyPath).collect(Collectors.toList())
+                .contains("email"));
     }
 
     @Test
     public void notMatchingPasswordsShouldFailValidation() {
+
         registerUserDTO = RegisterUserDTO.builder()
                 .username("")
                 .password("test")
@@ -92,6 +100,7 @@ public class RegisterUserDTOTest {
 
         Set<ConstraintViolation<RegisterUserDTO>> violations = validator.validate(registerUserDTO);
 
-        assertThat(violations.stream().map(ConstraintViolation::getMessage)).contains("Hasła się nie zgadzają");
+        violations.stream().map(ConstraintViolation::getPropertyPath).collect(Collectors.toList())
+                .contains("matchingPassword");
     }
 }

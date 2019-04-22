@@ -9,6 +9,7 @@ import pl.powiescdosukcesu.roles.Role;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.*;
 
@@ -38,7 +39,6 @@ public class AppUser implements Serializable {
     private String username;
 
     @Column(name = "password", nullable = false)
-    @JsonIgnore
     @NotNull
     private String password;
 
@@ -52,12 +52,17 @@ public class AppUser implements Serializable {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "image")
-    private byte[] image;
+    @JoinColumn(name = "image_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    private AppUserImage userImage;
 
     @Column(name = "sex")
     @NotNull
     private String sex;
+
+    @Column(name = "description")
+    @Size(max = 100)
+    private String description;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -65,7 +70,7 @@ public class AppUser implements Serializable {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     @JsonIgnore
-    private Collection<Role> roles;
+    private Set<Role> roles;
 
     @OneToMany(
             mappedBy = "user",

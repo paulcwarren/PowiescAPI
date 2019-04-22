@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import pl.powiescdosukcesu.book.Book;
@@ -41,4 +40,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Page<Book> findByGenres(Pageable pageable, @Param("genres") String[] genreName);
 
     Book saveAndFlush(Book book);
+
+
 }

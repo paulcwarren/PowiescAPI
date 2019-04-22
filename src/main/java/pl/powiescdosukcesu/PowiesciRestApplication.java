@@ -19,7 +19,6 @@ import pl.powiescdosukcesu.roles.RoleRepository;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Set;
 
 @SpringBootApplication
@@ -43,7 +42,7 @@ public class PowiesciRestApplication {
             AppUser user = AppUser.builder()
                     .username("Jack")
                     .password(encoder.encode("haslo"))
-                    .roles(List.of(role))
+                    .roles(Set.of(role))
                     .sex("MALE")
                     .email("didi@sf.ko")
                     .build();
@@ -52,6 +51,7 @@ public class PowiesciRestApplication {
 
             Genre genre = new Genre("Fantasy");
             genreRepository.save(genre);
+
             Book book = Book.builder()
                     .title("hermione")
                     .genres(Set.of(genre))
@@ -60,12 +60,14 @@ public class PowiesciRestApplication {
 
             book.setUser(user);
             user.addBook(book);
+
             appUserRepository.save(user);
             roleRepository.save(role);
 
             BookContentFile file = new BookContentFile();
             store.setContent(file, Files.newInputStream(Paths.get("/home/robertdev/Documents/day.csv")));
             book.setFile(file);
+
             repository.save(book);
         };
     }

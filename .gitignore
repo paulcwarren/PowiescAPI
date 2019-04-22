@@ -2,6 +2,7 @@
 /out/
 /target/
 system.properties
+/java/META-INF/
 
 ### STS ###
 .apt_generated

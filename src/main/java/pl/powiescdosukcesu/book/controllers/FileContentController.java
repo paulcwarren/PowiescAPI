@@ -15,25 +15,27 @@ import pl.powiescdosukcesu.book.repositories.BookRepository;
 
 import java.util.Optional;
 
+//TODO
 @RestController
 public class FileContentController {
 
-	@Autowired
+    @Autowired
     private BookRepository bookRepository;
-	@Autowired
+
+    @Autowired
     private BookContentFileStore store;
 
-	@RequestMapping(value="/bookStore/{fileId}", method = RequestMethod.GET)
-	public ResponseEntity<?> getContent(@PathVariable("fileId") Long id) {
+    @RequestMapping(value = "/bookStore/{fileId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getContent(@PathVariable("fileId") Long id) {
 
-		Optional<Book> f = bookRepository.findById(id);
-		if (f.isPresent()) {
-			var inputStreamResource = new InputStreamResource(store.getContent(f.get().getFile()));
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentLength(f.get().getFile().getContentLength());
-			headers.set("Content-Type", f.get().getFile().getMimeType());
-			return new ResponseEntity<Object>(inputStreamResource, headers, HttpStatus.OK);
-		}
-		return null;
-	}
+        Optional<Book> f = bookRepository.findById(id);
+        if (f.isPresent()) {
+            var inputStreamResource = new InputStreamResource(store.getContent(f.get().getFile()));
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentLength(f.get().getFile().getContentLength());
+            headers.set("Content-Type", f.get().getFile().getMimeType());
+            return new ResponseEntity<Object>(inputStreamResource, headers, HttpStatus.OK);
+        }
+        return null;
+    }
 }

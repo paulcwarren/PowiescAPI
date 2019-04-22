@@ -21,10 +21,10 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
     boolean existsByUsername(String username);
 
-    @RestResource(exported = false)
+    @RestResource
     AppUser save(AppUser user);
 
-    @RestResource(exported = false)
+    @RestResource
     AppUser saveAndFlush(AppUser user);
 
     Optional<AppUser> findByUsername(String username);

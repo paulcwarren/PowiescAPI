@@ -17,7 +17,7 @@ import java.io.File;
 public class ContentConfig {
 
     @Bean
-    File filesystemRoot() {
+    public File filesystemRoot() {
 
         return new File("/home/robertdev/Documents");
     }

@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
 import javax.sql.DataSource;
@@ -30,9 +29,9 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
     @Value("${oauth.client.secret}")
     private String SECRET;
 
-    private final int ACCESS_TOKEN_VALIDITY = 60*60;
+    private final int ACCESS_TOKEN_VALIDITY = 60 * 60;
 
-    private final int REFRESH_TOKEN_VALIDITY = 24*60*60;
+    private final int REFRESH_TOKEN_VALIDITY = 24 * 60 * 60;
 
     private final AuthenticationManager authenticationManager;
 
@@ -75,11 +74,10 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
     }
 
     @Override
-    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+    public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
 
         endpoints.tokenStore(tokenStore()).authenticationManager(authenticationManager);
     }
-
 
     //TODO change later to jdbc
     @Bean
